@@ -10,6 +10,66 @@ import org.slf4j.LoggerFactory;
 
 import com.blackberry.krackle.producer.ProducerConfiguration;
 
+/**
+ * Class for configuring KLogger.
+ * 
+ * It extends ProducerConfiguration from Krackle, so any property that is valid
+ * there is also valid here.
+ * 
+ * In addition, the following are possible.
+ * 
+ * <table>
+ * <tr>
+ * <th>property</th>
+ * <th>default</th>
+ * <th>description</th>
+ * </tr>
+ * 
+ * <tr>
+ * <td>client.id</td>
+ * <td>the local hostname</td>
+ * <td>The client ID to send with requests to the broker.</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>kafka.key</td>
+ * <td>the local hostname</td>
+ * <td>The key to use when partitioning all data topics sent from this instance.
+ * </td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>tcp.receive.buffer.bytes</td>
+ * <td>1024 * 1024</td>
+ * <td>Suggested size of the TCP receive buffer.</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>max.line.length</td>
+ * <td>64 * 1024</td>
+ * <td>Maximum line length accepted. Longer lines will be split into multiple
+ * lines of at most this size.</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>encode.timestamp</td>
+ * <td>true</td>
+ * <td>Whether or not to encode the timestamp in front of the logline, as
+ * described in the <a
+ * href="https://wikis.rim.net/display/bdp/Kafka+Logging+Architecture"
+ * >Architecture</a></td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>validate.utf8</td>
+ * <td>true</td>
+ * <td>If this is set to true, then all incoming log lines will be validated to
+ * ensure that they are correctly encoded in UTF-8. Invalid bytes will be
+ * replaced by the replacement character (U+FFFD).</td>
+ * </tr>
+ * 
+ * </table>
+ */
 public class Configuration extends ProducerConfiguration {
   private static final Logger LOG = LoggerFactory
       .getLogger(Configuration.class);
