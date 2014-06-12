@@ -68,6 +68,32 @@ import com.blackberry.krackle.producer.ProducerConfiguration;
  * replaced by the replacement character (U+FFFD).</td>
  * </tr>
  * 
+ * <tr>
+ * <td>sources</td>
+ * <td></td>
+ * <td>(required) A comma separated list of source names which should be active.
+ * </td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>source.<em>sourceName</em>.port</td>
+ * <td></td>
+ * <td>(required) One entry is required for each source listed in
+ * <code>sources</code>.
+ * <p>
+ * The port to listen on for messages send via this source.</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>source.<em>sourceName</em>.topic</td>
+ * <td></td>
+ * <td>(required) One entry is required for each source listed in
+ * <code>sources</code>.
+ * <p>
+ * The Kafka topic that messages sent via this <code>source</code> should be
+ * sent to.</td>
+ * </tr>
+ * 
  * </table>
  */
 public class Configuration extends ProducerConfiguration {
