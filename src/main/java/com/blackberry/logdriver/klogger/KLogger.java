@@ -1,16 +1,34 @@
 package com.blackberry.logdriver.klogger;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
+import com.blackberry.krackle.MetricRegistrySingleton;
 import com.blackberry.logdriver.klogger.Configuration.Source;
+import com.codahale.metrics.CsvReporter;
 
 public class KLogger {
 
   public static void main(String[] args) {
+    // Check to see if we want to use CSV metric logging
+    if (System.getProperty("metrics.log.dir") != null) {
+      String metricsLogDir = System.getProperty("metrics.log.dir");
+
+      CsvReporter reporter = CsvReporter
+          .forRegistry(
+              MetricRegistrySingleton.getInstance().getMetricsRegistry())
+          .formatFor(Locale.US).convertRatesTo(TimeUnit.SECONDS)
+          .convertDurationsTo(TimeUnit.MILLISECONDS)
+          .build(new File(metricsLogDir));
+      reporter.start(60, TimeUnit.SECONDS);
+    }
+
     // Read in properties file and configure ports and Kafka appender
     Configuration conf = null;
     try {
