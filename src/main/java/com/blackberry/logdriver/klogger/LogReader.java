@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.blackberry.krackle.MetricRegistrySingleton;
 import com.blackberry.krackle.producer.Producer;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 
 public class LogReader implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(LogReader.class);
@@ -26,6 +28,11 @@ public class LogReader implements Runnable {
 
   private boolean encodeTimestamp;
   private boolean validateUTF8;
+
+  private Meter mBytesReceived;
+  private Meter mBytesReceivedTotal;
+  private Meter mLinesReceived;
+  private Meter mLinesReceivedTotal;
 
   public LogReader(Configuration conf, Socket s, String topic) throws Exception {
     LOG.info("Created new {} for connection {}", this.getClass().getName(),
@@ -51,6 +58,18 @@ public class LogReader implements Runnable {
         producers.put(mapKey, producer);
       }
     }
+
+    mBytesReceived = MetricRegistrySingleton.getInstance().getMetricsRegistry()
+        .meter(MetricRegistry.name(LogReader.class, "bytes received " + topic));
+    mBytesReceivedTotal = MetricRegistrySingleton.getInstance()
+        .getMetricsRegistry()
+        .meter(MetricRegistry.name(LogReader.class, "bytes received [total]"));
+
+    mLinesReceived = MetricRegistrySingleton.getInstance().getMetricsRegistry()
+        .meter(MetricRegistry.name(LogReader.class, "lines received " + topic));
+    mLinesReceivedTotal = MetricRegistrySingleton.getInstance()
+        .getMetricsRegistry()
+        .meter(MetricRegistry.name(LogReader.class, "lines received [total]"));
   }
 
   @Override
@@ -95,6 +114,8 @@ public class LogReader implements Runnable {
         if (bytesRead == -1) {
           break;
         }
+        mBytesReceived.mark(bytesRead);
+        mBytesReceivedTotal.mark(bytesRead);
 
         limit = start + bytesRead;
         start = 0;
@@ -116,6 +137,9 @@ public class LogReader implements Runnable {
 
           // Found a newline
           if (newline >= 0) {
+            mLinesReceived.mark();
+            mLinesReceivedTotal.mark();
+
             // LOG.info("Sending (pos {}, len {}):{}", start, newline - start,
             // new String(buffer, start, newline - start, "UTF-8"));
             sendBuffer.clear();
@@ -145,6 +169,9 @@ public class LogReader implements Runnable {
             // if the buffer is full, send it all. Otherwise, do
             // nothing.
             if (start == 0 && limit == maxLine) {
+              mLinesReceived.mark();
+              mLinesReceivedTotal.mark();
+
               // LOG.info("Sending line with no newline");
               // LOG.info("Sending:{}", new String(buffer, 0, maxLine,
               // "UTF-8"));
