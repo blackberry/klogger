@@ -6,7 +6,7 @@
 
   <groupId>com.blackberry.klogger</groupId>
   <artifactId>klogger</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>trunk</version>
 
   <name>klogger</name>
   <url>http://www.blackberry.com</url>
