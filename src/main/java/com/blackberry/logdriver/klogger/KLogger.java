@@ -29,6 +29,11 @@ public class KLogger {
       reporter.start(60, TimeUnit.SECONDS);
     }
 
+    // Check to see if we need to enable console reporting
+    if (Boolean.parseBoolean(System.getProperty("metrics.to.console", "false"))) {
+      MetricRegistrySingleton.getInstance().enableConsole();
+    }
+
     // Read in properties file and configure ports and Kafka appender
     Configuration conf = null;
     try {
