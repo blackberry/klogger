@@ -60,16 +60,14 @@ public class LogReader implements Runnable {
     }
 
     mBytesReceived = MetricRegistrySingleton.getInstance().getMetricsRegistry()
-        .meter(MetricRegistry.name(LogReader.class, "bytes received " + topic));
+        .meter("klogger:topics:" + topic + ":bytes received");
     mBytesReceivedTotal = MetricRegistrySingleton.getInstance()
-        .getMetricsRegistry()
-        .meter(MetricRegistry.name(LogReader.class, "bytes received [total]"));
+        .getMetricsRegistry().meter("klogger:total:bytes received");
 
     mLinesReceived = MetricRegistrySingleton.getInstance().getMetricsRegistry()
-        .meter(MetricRegistry.name(LogReader.class, "lines received " + topic));
+        .meter("klogger:topics:" + topic + ":lines received");
     mLinesReceivedTotal = MetricRegistrySingleton.getInstance()
-        .getMetricsRegistry()
-        .meter(MetricRegistry.name(LogReader.class, "lines received [total]"));
+        .getMetricsRegistry().meter("klogger:total:lines received");
   }
 
   @Override
