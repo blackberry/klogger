@@ -144,11 +144,11 @@ public class Configuration extends ProducerConfiguration {
     LOG.info("max.line.length = {}", maxLineLength);
 
     encodeTimestamp = Boolean.parseBoolean(props.getProperty(
-        "encode.timestamp", "true"));
+        "encode.timestamp", "true").trim());
     LOG.info("encode.timestamp = {}", encodeTimestamp);
 
     validateUtf8 = Boolean.parseBoolean(props.getProperty("validate.utf8",
-        "true"));
+        "true").trim());
     LOG.info("validate.utf8 = {}", encodeTimestamp);
 
     LOG.info("Port to topic mappings:");
