@@ -20,7 +20,7 @@
     <dependency>
       <groupId>com.blackberry.krackle</groupId>
       <artifactId>krackle</artifactId>
-      <version>0.7.0</version>
+      <version>0.7.1</version>
     </dependency>
 
     <!-- Logging dependencies -->
