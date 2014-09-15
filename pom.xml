@@ -6,7 +6,7 @@
 
   <groupId>com.blackberry.klogger</groupId>
   <artifactId>klogger</artifactId>
-  <version>trunk</version>
+  <version>0.6.4</version>
 
   <name>klogger</name>
   <url>http://www.blackberry.com</url>
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>com.blackberry.krackle</groupId>
       <artifactId>krackle</artifactId>
-      <version>0.7.3</version>
+      <version>0.7.4</version>
     </dependency>
 
     <!-- Logging dependencies -->

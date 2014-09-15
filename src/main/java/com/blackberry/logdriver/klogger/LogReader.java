@@ -45,6 +45,7 @@ public class LogReader implements Runnable {
 
     String clientId = conf.getClientId();
     String key = conf.getKafkaKey();
+    boolean rotatePartitions = conf.getKafkaRotatePartitions();
 
     MetricRegistrySingleton.getInstance().enableJmx();
 
@@ -53,7 +54,7 @@ public class LogReader implements Runnable {
       if (producers.containsKey(mapKey)) {
         producer = producers.get(mapKey);
       } else {
-        producer = new Producer(conf, clientId, topic, key,
+        producer = new Producer(conf, clientId, topic, key, rotatePartitions,
             MetricRegistrySingleton.getInstance().getMetricsRegistry());
         producers.put(mapKey, producer);
       }

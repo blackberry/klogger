@@ -31,6 +31,8 @@ import com.blackberry.krackle.producer.ProducerConfiguration;
  * <td>The client ID to send with requests to the broker.</td>
  * </tr>
  * 
+ * 
+ * 
  * <tr>
  * <td>kafka.key</td>
  * <td>the local hostname</td>
@@ -38,6 +40,13 @@ import com.blackberry.krackle.producer.ProducerConfiguration;
  * </td>
  * </tr>
  * 
+ * <tr>
+ * <td>kafka.rotate</td>
+ * <td>whether to RR through partitions</td>
+ * <td>Whether or not we switch to the next available partitions on each Meta-Data Refresh or not (default=false)
+ * </td>
+ * </tr>
+  * 
  * <tr>
  * <td>tcp.receive.buffer.bytes</td>
  * <td>1024 * 1024</td>
@@ -103,6 +112,7 @@ public class Configuration extends ProducerConfiguration {
   private List<Source> sources;
   private String clientId;
   private String kafkaKey;
+  private boolean rotatePartitions;
   private int tcpReceiveBufferBytes;
   private int maxLineLength;
   private boolean encodeTimestamp;
@@ -126,6 +136,9 @@ public class Configuration extends ProducerConfiguration {
       kafkaKey = InetAddress.getLocalHost().getHostName();
     }
     LOG.info("kafka.key = {}", kafkaKey);
+    
+    rotatePartitions = Boolean.parseBoolean(props.getProperty("kafka.rotate", "false").trim());
+    LOG.info("kafka.rotate = {}", rotatePartitions);
 
     tcpReceiveBufferBytes = Integer.parseInt(props.getProperty(
         "tcp.receive.buffer.bytes", "" + ONE_MB));
@@ -183,6 +196,14 @@ public class Configuration extends ProducerConfiguration {
     this.clientId = clientId;
   }
 
+  public boolean getKafkaRotatePartitions() {
+  		return rotatePartitions;
+  }
+  
+  public void setKafkaRotatePartitions(boolean rotatePartitions) {
+  	this.rotatePartitions = rotatePartitions;
+  }
+  
   public String getKafkaKey() {
     return kafkaKey;
   }
