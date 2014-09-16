@@ -2,7 +2,6 @@ package com.blackberry.logdriver.klogger;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
