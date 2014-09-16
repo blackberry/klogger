@@ -2,8 +2,10 @@ package com.blackberry.logdriver.klogger;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,19 +167,23 @@ public class Configuration extends ProducerConfiguration {
     LOG.info("validate.utf8 = {}", encodeTimestamp);
 
     LOG.info("Port to topic mappings:");
+    
+    
+    //mbruce: Parse the sources in the file, based solely on what source.<topic>.topics appear instead of relying on a sources list
     sources = new ArrayList<Source>();
-    String sourceString = props.getProperty("sources");
-    if (sourceString == null || sourceString.isEmpty()) {
-      throw new Exception("sources cannot be empty.");
+    Set<String> sourceList = props.stringPropertyNames();
+      
+    for(String curElement : sourceList) {
+    	if(curElement.matches("^source\\..*\\.topic$") ) {
+    		Source source = new Source();
+    		String curTopic = curElement.split("\\.")[1];
+    		source.setPort(Integer.parseInt(props.getProperty("source." + curTopic + ".port").trim()));
+    		source.setTopic(props.getProperty("source." + curTopic + ".topic"));
+    		sources.add(source);
+    		LOG.info("    {} ==> {}", source.getPort(), source.getTopic());
+    	}
     }
-    for (String s : sourceString.split(",")) {
-      Source source = new Source();
-      source.setPort(Integer.parseInt(props
-          .getProperty("source." + s + ".port")));
-      source.setTopic(props.getProperty("source." + s + ".topic"));
-      sources.add(source);
-      LOG.info("    {} ==> {}", source.getPort(), source.getTopic());
-    }
+   
   }
 
   public List<Source> getSources() {
