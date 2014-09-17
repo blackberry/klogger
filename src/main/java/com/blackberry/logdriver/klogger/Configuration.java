@@ -176,6 +176,12 @@ public class Configuration extends ProducerConfiguration {
     	if(curElement.matches("^source\\..*\\.topic$") ) {
     		Source source = new Source();
     		String curTopic = curElement.split("\\.")[1];
+    		
+    		if(props.getProperty("source." + curTopic + ".port") == null) {
+    			LOG.error("Configured Topic {} does not have a port defined - skipping", curTopic);
+    			continue;
+    		}
+    		
     		source.setPort(Integer.parseInt(props.getProperty("source." + curTopic + ".port").trim()));
     		source.setTopic(props.getProperty("source." + curTopic + ".topic"));
     		sources.add(source);
