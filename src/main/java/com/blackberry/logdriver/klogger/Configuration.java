@@ -47,7 +47,19 @@ import com.blackberry.krackle.producer.ProducerConfiguration;
  * <td>Whether or not we switch to the next available partitions on each Meta-Data Refresh or not (default=false)
  * </td>
  * </tr>
-  * 
+ *
+ * <tr>
+ * <td>kafka.quick.rotate</td>
+ * <td>Option for Quick Rotating</td>
+ * <td>Whether or not we want to use quick rotate.</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>kafka.quick.rotate.message.blocks</td>
+ * <td>Number of Message Blocks</td>
+ * <td>The number of message blocks we will read before rotating the partition. Requires kafka.quick.rotate enabled.</td>
+ * </tr>
+ * 
  * <tr>
  * <td>tcp.receive.buffer.bytes</td>
  * <td>1024 * 1024</td>
@@ -114,6 +126,8 @@ public class Configuration extends ProducerConfiguration {
   private String clientId;
   private String kafkaKey;
   private boolean rotatePartitions;
+  private boolean quickRotate;
+  private long quickRotateMessageBlocks;
   private int tcpReceiveBufferBytes;
   private int maxLineLength;
   private boolean encodeTimestamp;
@@ -140,6 +154,15 @@ public class Configuration extends ProducerConfiguration {
     
     rotatePartitions = Boolean.parseBoolean(props.getProperty("kafka.rotate", "false").trim());
     LOG.info("kafka.rotate = {}", rotatePartitions);
+    
+    quickRotate = Boolean.parseBoolean(props.getProperty("kafka.quick.rotate", "false").trim());
+    LOG.info("kafka.quick.rotate = {}" , quickRotate);
+    
+    quickRotateMessageBlocks = Long.parseLong(props.getProperty("kafka.quick.rotate.message.blocks", "0").trim());
+    LOG.info("kafka.quick.rotate.blocks = {}", quickRotateMessageBlocks);
+    
+    if(quickRotateMessageBlocks == 0 && quickRotate)
+    	LOG.warn("kafka.quick.rotate is set to {} while kafka.quick.rotate.blocks is 0! This should be defined.", quickRotate);
 
     tcpReceiveBufferBytes = Integer.parseInt(props.getProperty(
         "tcp.receive.buffer.bytes", "" + ONE_MB));
@@ -213,6 +236,22 @@ public class Configuration extends ProducerConfiguration {
   
   public void setKafkaRotatePartitions(boolean rotatePartitions) {
   	this.rotatePartitions = rotatePartitions;
+  }
+  
+  public boolean getKafkaQuickRotate() {
+	  return quickRotate;
+  }
+  
+  public void setKafkaQuickRotate(boolean quickRotate) {
+	  this.quickRotate = quickRotate;
+  }
+  
+  public long getKafkaQuickRotateMessageBlocks() {
+	  return quickRotateMessageBlocks;
+  }
+  
+  public void setKafkaQuickRotateMessageBlocks(long quickRotateMessageBlocks) {
+	  this.quickRotateMessageBlocks = quickRotateMessageBlocks;
   }
   
   public String getKafkaKey() {

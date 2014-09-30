@@ -46,6 +46,8 @@ public class LogReader implements Runnable {
     String clientId = conf.getClientId();
     String key = conf.getKafkaKey();
     boolean rotatePartitions = conf.getKafkaRotatePartitions();
+    boolean quickRotate = conf.getKafkaQuickRotate();
+    long quickRotateMessageBlocks = conf.getKafkaQuickRotateMessageBlocks();
 
     MetricRegistrySingleton.getInstance().enableJmx();
 
@@ -55,7 +57,8 @@ public class LogReader implements Runnable {
         producer = producers.get(mapKey);
       } else {
         producer = new Producer(conf, clientId, topic, key, rotatePartitions,
-            MetricRegistrySingleton.getInstance().getMetricsRegistry());
+        		quickRotate, quickRotateMessageBlocks,
+        		MetricRegistrySingleton.getInstance().getMetricsRegistry());
         producers.put(mapKey, producer);
       }
     }
