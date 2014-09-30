@@ -49,18 +49,6 @@ import com.blackberry.krackle.producer.ProducerConfiguration;
  * </tr>
  *
  * <tr>
- * <td>kafka.quick.rotate</td>
- * <td>Option for Quick Rotating</td>
- * <td>Whether or not we want to use quick rotate.</td>
- * </tr>
- * 
- * <tr>
- * <td>kafka.quick.rotate.message.blocks</td>
- * <td>Number of Message Blocks</td>
- * <td>The number of message blocks we will read before rotating the partition. Requires kafka.quick.rotate enabled.</td>
- * </tr>
- * 
- * <tr>
  * <td>tcp.receive.buffer.bytes</td>
  * <td>1024 * 1024</td>
  * <td>Suggested size of the TCP receive buffer.</td>
@@ -116,6 +104,21 @@ import com.blackberry.krackle.producer.ProducerConfiguration;
  * sent to.</td>
  * </tr>
  * 
+ * <tr>
+ * <td>source.<em>sourceName</em>.quick.rotate</td>
+ * <td>(optional) This is optional for each source listed in <code>sources</code>
+ * <p>Whether or not we will do quickRotate for this Topic.</p>
+ * </td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>source.<em>sourceName</em>.quick.rotate.msgblks</td>
+ * <td>(optional) This is optional for each source listed in <code>sources</code>
+ * <p>Whether or not we will do quickRotate for this Topic.</p>
+ * </td>
+ * </tr>
+ * 
+ * 
  * </table>
  */
 public class Configuration extends ProducerConfiguration {
@@ -126,8 +129,6 @@ public class Configuration extends ProducerConfiguration {
   private String clientId;
   private String kafkaKey;
   private boolean rotatePartitions;
-  private boolean quickRotate;
-  private long quickRotateMessageBlocks;
   private int tcpReceiveBufferBytes;
   private int maxLineLength;
   private boolean encodeTimestamp;
@@ -154,16 +155,7 @@ public class Configuration extends ProducerConfiguration {
     
     rotatePartitions = Boolean.parseBoolean(props.getProperty("kafka.rotate", "false").trim());
     LOG.info("kafka.rotate = {}", rotatePartitions);
-    
-    quickRotate = Boolean.parseBoolean(props.getProperty("kafka.quick.rotate", "false").trim());
-    LOG.info("kafka.quick.rotate = {}" , quickRotate);
-    
-    quickRotateMessageBlocks = Long.parseLong(props.getProperty("kafka.quick.rotate.message.blocks", "0").trim());
-    LOG.info("kafka.quick.rotate.blocks = {}", quickRotateMessageBlocks);
-    
-    if(quickRotateMessageBlocks == 0 && quickRotate)
-    	LOG.warn("kafka.quick.rotate is set to {} while kafka.quick.rotate.blocks is 0! This should be defined.", quickRotate);
-
+     
     tcpReceiveBufferBytes = Integer.parseInt(props.getProperty(
         "tcp.receive.buffer.bytes", "" + ONE_MB));
     if (tcpReceiveBufferBytes < 1) {
@@ -204,9 +196,14 @@ public class Configuration extends ProducerConfiguration {
     			LOG.error("Configured Topic {} does not have a port defined - skipping", curTopic);
     			continue;
     		}
+    		if(Boolean.parseBoolean(props.getProperty("source." + curTopic+ ".quick.rotate", "false"))) {
+    			LOG.info("Configured topic {} using Quick Rotate", curTopic);
+    		}
     		
     		source.setPort(Integer.parseInt(props.getProperty("source." + curTopic + ".port").trim()));
     		source.setTopic(props.getProperty("source." + curTopic + ".topic"));
+    		source.setQuickRotate(Boolean.parseBoolean(props.getProperty("source." + curTopic + ".quick.rotate", "false").trim()));
+    		source.setQuickRotateMessageBlocks(Long.parseLong(props.getProperty("source." + curTopic + ".quick.rotate.msgblks", "0").trim()));
     		sources.add(source);
     		LOG.info("    {} ==> {}", source.getPort(), source.getTopic());
     	}
@@ -236,22 +233,6 @@ public class Configuration extends ProducerConfiguration {
   
   public void setKafkaRotatePartitions(boolean rotatePartitions) {
   	this.rotatePartitions = rotatePartitions;
-  }
-  
-  public boolean getKafkaQuickRotate() {
-	  return quickRotate;
-  }
-  
-  public void setKafkaQuickRotate(boolean quickRotate) {
-	  this.quickRotate = quickRotate;
-  }
-  
-  public long getKafkaQuickRotateMessageBlocks() {
-	  return quickRotateMessageBlocks;
-  }
-  
-  public void setKafkaQuickRotateMessageBlocks(long quickRotateMessageBlocks) {
-	  this.quickRotateMessageBlocks = quickRotateMessageBlocks;
   }
   
   public String getKafkaKey() {
@@ -297,6 +278,8 @@ public class Configuration extends ProducerConfiguration {
   public static class Source {
     private int port;
     private String topic;
+    private boolean quickRotate;
+    private long quickRotateMessageBlocks; 
 
     public int getPort() {
       return port;
@@ -312,6 +295,22 @@ public class Configuration extends ProducerConfiguration {
 
     public void setTopic(String topic) {
       this.topic = topic;
+    }
+    
+    public boolean getQuickRotate() {
+    	return quickRotate;
+    }
+    
+    public void setQuickRotate(boolean quickRotate) {
+    	this.quickRotate = quickRotate;
+    }
+    
+    public long getQuickRotateMessageBlocks() {
+    	return quickRotateMessageBlocks;
+    }
+    
+    public void setQuickRotateMessageBlocks(long quickRotateMessageBlocks) {
+    	this.quickRotateMessageBlocks = quickRotateMessageBlocks;
     }
   }
 }

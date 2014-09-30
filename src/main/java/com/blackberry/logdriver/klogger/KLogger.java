@@ -59,7 +59,7 @@ public class KLogger {
     // Listen on each port
     List<Thread> threads = new ArrayList<Thread>();
     for (Source s : conf.getSources()) {
-      TcpListener listener = new TcpListener(conf, s.getPort(), s.getTopic());
+      TcpListener listener = new TcpListener(conf, s.getPort(), s.getTopic(), s.getQuickRotate(), s.getQuickRotateMessageBlocks());
       Thread t = new Thread(listener);
       t.start();
 

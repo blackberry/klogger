@@ -34,7 +34,7 @@ public class LogReader implements Runnable {
   private Meter mLinesReceived;
   private Meter mLinesReceivedTotal;
 
-  public LogReader(Configuration conf, Socket s, String topic) throws Exception {
+  public LogReader(Configuration conf, Socket s, String topic, boolean quickRotate, long quickRotateMessageBlocks) throws Exception {
     LOG.info("Created new {} for connection {}", this.getClass().getName(),
         s.getRemoteSocketAddress());
 
@@ -46,9 +46,7 @@ public class LogReader implements Runnable {
     String clientId = conf.getClientId();
     String key = conf.getKafkaKey();
     boolean rotatePartitions = conf.getKafkaRotatePartitions();
-    boolean quickRotate = conf.getKafkaQuickRotate();
-    long quickRotateMessageBlocks = conf.getKafkaQuickRotateMessageBlocks();
-
+    
     MetricRegistrySingleton.getInstance().enableJmx();
 
     synchronized (producersLock) {
