@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.blackberry.krackle.MetricRegistrySingleton;
 import com.blackberry.krackle.producer.Producer;
+import com.blackberry.logdriver.klogger.Configuration.Source;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 
@@ -34,7 +35,7 @@ public class LogReader implements Runnable {
   private Meter mLinesReceived;
   private Meter mLinesReceivedTotal;
 
-  public LogReader(Configuration conf, Socket s, String topic, boolean quickRotate, long quickRotateMessageBlocks) throws Exception {
+  public LogReader(Configuration conf, Source source, Socket s) throws Exception {
     LOG.info("Created new {} for connection {}", this.getClass().getName(),
         s.getRemoteSocketAddress());
 
@@ -42,10 +43,14 @@ public class LogReader implements Runnable {
     maxLine = conf.getMaxLineLength();
     encodeTimestamp = conf.isEncodeTimestamp();
     validateUTF8 = conf.isValidateUtf8();
-
+        
     String clientId = conf.getClientId();
     String key = conf.getKafkaKey();
     boolean rotatePartitions = conf.getKafkaRotatePartitions();
+    
+    String topic = source.getTopic();
+    boolean quickRotate = source.getQuickRotate();
+    long quickRotateMessageBlocks = source.getQuickRotateMessageBlocks();
     
     MetricRegistrySingleton.getInstance().enableJmx();
 
@@ -54,7 +59,7 @@ public class LogReader implements Runnable {
       if (producers.containsKey(mapKey)) {
         producer = producers.get(mapKey);
       } else {
-        producer = new Producer(conf, clientId, topic, key, rotatePartitions,
+        producer = new Producer(conf, clientId, source.getTopic(), key, rotatePartitions,
         		quickRotate, quickRotateMessageBlocks,
         		MetricRegistrySingleton.getInstance().getMetricsRegistry());
         producers.put(mapKey, producer);

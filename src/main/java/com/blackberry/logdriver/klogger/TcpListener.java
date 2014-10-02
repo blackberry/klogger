@@ -6,37 +6,29 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.blackberry.logdriver.klogger.Configuration.Source;
+
 public class TcpListener implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(TcpListener.class);
 
   private Configuration conf;
-  private int port;
-  private String topic;
-  private boolean quickRotate;
-  private long quickRotateMessageBlocks;
-
-  public TcpListener(Configuration conf, int port, String topic) {
-	  this(conf, port, topic, false, 0);
-  }
+  private Source source;
   
-  public TcpListener(Configuration conf, int port, String topic, boolean quickRotate, long quickRotateMessageBlocks) {
+  public TcpListener(Configuration conf, Source s) {
     this.conf = conf;
-    this.port = port;
-    this.topic = topic;
-    this.quickRotate = quickRotate;
-    this.quickRotateMessageBlocks = quickRotateMessageBlocks;
+    this.source = s;
   }
 
   @Override
   public void run() {
     try {
-      ServerSocket ss = new ServerSocket(port);
+      ServerSocket ss = new ServerSocket(source.getPort());
       ss.setReceiveBufferSize(conf.getTcpReceiveBufferBytes());
-      LOG.info("Listening on port {}", port);
+      LOG.info("Listening on port {}", source.getPort());
 
       while (true) {
         Socket s = ss.accept();
-        LogReader r = new LogReader(conf, s, topic, quickRotate, quickRotateMessageBlocks);
+        LogReader r = new LogReader(conf, source, s);
         Thread t = new Thread(r);
         t.start();
       }
