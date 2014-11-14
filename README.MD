@@ -27,7 +27,7 @@ Below is an example configuration for running a KLogger instance that receives m
 
 * /opt/klogger/config/klogger-env.sh (defines runtime configuration and JVM properties)
 
-	JAVA=`which java`
+	JAVA=``which java``
 	BASEDIR=/opt/klogger
 	CONFIGDIR="$BASEDIR/config"
 	LOGDIR="$BASEDIR/logs"
@@ -52,7 +52,7 @@ Below is an example configuration for running a KLogger instance that receives m
 	JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:$LOG4JPROPERTIES"
 
 	CLASSPATH=$CONFIGDIR
-	for file in `find $BASEDIR -name "*.jar"`
+	for file in ``find $BASEDIR -name "*.jar"``
 	do
 	  if [[ "x$CLASSPATH" == "x" ]]
 	  then
