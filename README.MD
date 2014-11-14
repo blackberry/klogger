@@ -15,7 +15,7 @@ KLogger is a simple service that uses Krackle to receive messages and produce th
 **Author(s)** 
 
 * Will Chartrand (original author)
-* [Dave Ariens](<dariens@blackberry.com>) (current maintainer)
+* [Dave Ariens]<dariens@blackberry.com> (current maintainer)
 
 **Building**
 
