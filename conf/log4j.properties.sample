@@ -1,0 +1,22 @@
+klogger.logs.dir=/var/log/klogger
+log4j.rootLogger=INFO, kloggerAppender
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c)n
+
+#log4j.appender.kloggerAppender=org.apache.log4j.DailyRollingFileAppender
+#log4j.appender.kloggerAppender.DatePattern='.'yyy-MM-dd-HH
+#log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
+#log4j.appender.kloggerAppender.layout=org.apache.log4j.PatternLayout
+#log4j.appender.kloggerAppender.layout.ConversionPattern=[%d] %p %m (%c)%n
+
+# rolling log file
+log4j.appender.kloggerAppender=org.apache.log4j.RollingFileAppender
+log4j.appender.kloggerAppender.maxFileSize=20MB
+log4j.appender.kloggerAppender.maxBackupIndex=5
+log4j.appender.kloggerAppender.layout=org.apache.log4j.PatternLayout
+log4j.appender.kloggerAppender.layout.ConversionPattern=%5p [%t] %d{ISO8601} %m%n
+# Edit the next line to point to your logs directory
+log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
+

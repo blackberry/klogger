@@ -1,0 +1,75 @@
+###############################################################################
+# klogger.properties contains configurations for both klogger and  krackle.  
+# Each item will shall be identified as requried or not and the default value 
+# (if applicable) that is used for unspecified non-required configurations.
+###############################################################################
+
+# metadata.broker.list: a comma separated list of host:port entries.
+# combinations of Kafka brokers you wish to procuce to, example:
+# metadata.broker.list=r3k1.kafka.log82.bblabs:9092,r3k2.kafka.log82.bblabs:9092,r3k3.kafka.log82.bblabs:9092
+# required: yes
+#
+metadata.broker.list=
+
+# compression.codec: the compression codec you wish to use (gzip or snappy), example: 
+# compression.codec=snappy
+# required: yes
+#
+compression.codec=snappy
+
+# queue.enqueue.timeout.ms: The amount of time to block
+# before dropping messages when all buffers are full. If set to 0 
+# events will be enqueued immediately or dropped if the queue is 
+# full (the producer send call will never block). If set to -1 the
+# producer will block indefinitely and never willingly drop a send.
+# required: yes
+#
+queue.enqueue.timeout.ms=0
+
+# use.shared.buffers (required): If this is set to true, then there 
+# will be one set of buffers that is used by all Producer instances. 
+# In that case, ensure that num.buffers is large enough.
+# required: no
+# default: false
+#
+use.shared.buffers=true
+
+# kafka.rotate  Whether or not we rotate (round robin) through partitions on 
+# each metadata refresh
+# required: no
+# default: false
+#
+kafka.rotate=true
+
+# num.buffers: The number of buffers to use.  Set according to heap size.
+# Recommendations are: 4GB=1000, 6GB=2000, 8GB=4000, 16GB=11000
+# required: no
+# default: 2
+num.buffers=1000
+
+# kafka.key: a string that is hashed to determine the partion to procuce for.
+# required: no
+# default: the local hostname (warning--this may not hash evenly enough).
+# example: kafka.key=!%*#@%$$^
+
+# sources: a comma separated list of topics klogger will receive messages for.
+# required: yes
+#
+#sources=devtest-test1,devtest-test2,devtest-test3,devtest-test4,devtest-test5,devtest-test6,devtest-test7,devtest-test8,devtest-test9,devtest-test10
+sources=
+
+# source entries: the following pairs of source.<topic>.port and 
+# source.<topic>.topic entries are a rather clumsy method of specifying 
+# a topic's port.  Regarless...
+#
+# source.<topic>.port: the port to listen on for the specified topic
+# source.<topic>.topic: the topic (like I said, clumsy...)
+#
+# Example, for a topic "testingtopic to listen on port 2001:
+#
+# source.testingtopic.port=2001
+# source.testingtopic.topic=testingtopic
+#
+# Rinse/repeat for each topic/port combination.
+source.<topic>.port=
+source.<topic>.topic=<topic>
