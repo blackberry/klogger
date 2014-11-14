@@ -93,7 +93,7 @@ Below is an example configuration for running a KLogger instance that receives m
 	log4j.appender.kloggerAppender.maxBackupIndex=5
 	log4j.appender.kloggerAppender.layout=org.apache.log4j.PatternLayout
 	log4j.appender.kloggerAppender.layout.ConversionPattern=%5p [%t] %d{ISO8601} %m%n
-	log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
+	log4j.appender.kloggerAppender.File=$${klogger.logs.dir}/server.log
 
 **Running**
 
