@@ -25,16 +25,6 @@ Performing a Maven install produces a Debian package that currently installs on 
 
 To contribute code to this repository you must be [signed up as an official contributor](http://blackberry.github.com/howToContribute.html).
 
-## Screenshots ##
-
-![image](https://raw.github.com/blackberry/Cascades-Samples/master/BfB-Boilerplate-10.2/_screenshots/tabs.png)
-![image](https://raw.github.com/blackberry/Cascades-Samples/master/BfB-Boilerplate-10.2/_screenshots/invoke.png)
-![image](https://raw.github.com/blackberry/Cascades-Samples/master/BfB-Boilerplate-10.2/_screenshots/bbm.png)
-![image](https://raw.github.com/blackberry/Cascades-Samples/master/BfB-Boilerplate-10.2/_screenshots/spinners.png)
-
-
-## How To Build
-
 ## Disclaimer
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
