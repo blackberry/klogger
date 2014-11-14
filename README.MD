@@ -20,6 +20,7 @@ Performing a Maven install produces a Debian package that currently installs on 
 Below is an example configuration for running a KLogger instance that receives messages for two topics (topic1, topic2) on ports 2001, 2002 respectively.  It uses 4GB  worth of heap and will buffer up to a GB of messages for both topics (in the event Kafka cannot ack) before dropping.
 
 /opt/klogger/config/klogger-env.sh (defines runtime configuration and JVM properties)
+
 ```
 JAVA=`which java`
 BASEDIR=/opt/klogger
@@ -58,6 +59,7 @@ done
 ```
 
 /opt/klogger/config/klogger.properties (defines Klogger configuration, topics, and ports)
+
 ```
 metadata.broker.list=kafka1.site.dc1:9092,kafka2.site.dc1:9092,kafka3.site.dc1:9092
 compression.codec=snappy
@@ -73,7 +75,9 @@ source.topic1=topic1
 source.topic2.port=2002
 source.topic2=topic2
 ```
+
 /opt/klogger/config/log4j.properties (logging)
+
 ```
 klogger.logs.dir=/var/log/klogger
 log4j.rootLogger=INFO, kloggerAppender
@@ -89,6 +93,7 @@ log4j.appender.kloggerAppender.layout=org.apache.log4j.PatternLayout
 log4j.appender.kloggerAppender.layout.ConversionPattern=%5p [%t] %d{ISO8601} %m%n
 log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
 ```
+
 ## Running
 After configuration simply start the service 'klogger start'.  The package also creates a symbolic from /lib/init/upstart-job to /etc/init.d/klogger so existing 'service' configurations are respected.
 
