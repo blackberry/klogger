@@ -2,7 +2,7 @@
 
 Klogger is a simple service that uses Krackle to receive messages and produce them to Kafka topics. 
 
-###Design Goals###
+### Design Goals ###
 
 * Basic: Small code base with few dependencies and external requirements
 * Efficient: Consideration placed on minimizing object instantiation to reduce effects of GC
