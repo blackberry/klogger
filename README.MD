@@ -6,11 +6,11 @@ KLogger is a simple service that uses Krackle to receive messages and produce th
 
 * Basic: Small code base with few dependencies and external requirements
 * Efficient: Consideration placed on minimizing object instantiation to reduce effects of GC
-* Configurable: 
+* Configurable: Resource consumption can be configured to tune performance 
 
 **Limitations**
 
-* Security: Klogger is not inteded to be distributed outside a trusted domain security administration domain--a fancy way of saying that Klogger should be deployed only to hosts intended to have direct access to produce for your Kafka topics.  There is no built-in access control or authentication.
+* Security: Klogger is not inteded to be distributed outside a trusted security administration domain--a fancy way of saying that Klogger should be deployed only to hosts intended to have direct access to produce for your Kafka topics.  There is no built-in access control or authentication.
 
 **Author(s)** 
 
