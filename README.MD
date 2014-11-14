@@ -98,7 +98,7 @@ log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
 After configuration simply start the service 'klogger start'.  The package also creates a symbolic from /lib/init/upstart-job to /etc/init.d/klogger so existing 'service' configurations are respected.
 
 ## Monitoring
-Exposed via (Coda Hale's Metric's)[https://github.com/dropwizard/metrics] are:
+Exposed via [Coda Hale's Metric's](https://github.com/dropwizard/metrics) are:
 
 Klogger:
 * Meter: bytesReceived
