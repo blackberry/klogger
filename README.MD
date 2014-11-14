@@ -1,33 +1,27 @@
 # Klogger - A High Performance Producer Client for Kafka
-
 Klogger is a simple service that uses Krackle to receive messages and produce them to Kafka topics. 
 
 ## Design Goals
-
 * Basic: Small code base with few dependencies and external requirements
 * Efficient: Consideration placed on minimizing object instantiation to reduce effects of GC
 * Configurable: Resource consumption can be configured to tune performance 
 
-**Limitations**
-
+## Limitations
 * Security: Klogger is not intended to be distributed outside a trusted security administration domain--a fancy way of saying that Klogger should be deployed only to hosts intended to have direct access to produce for your Kafka topics.  There is no built-in access control or authentication.
 
-**Author(s)** 
-
+## Author(s)
 * Will Chartrand (original author)
 * [Dave Ariens](<mailto:dariens@blackberry.com>) (current maintainer)
 
-**Building**
-
+## Building
 Performing a Maven install produces a Debian package that currently installs on Ubuntu based Linux distributions that support upstart-enabled services.
 
-**Configuring**
-
+## Configuring
 Below is an example configuration for running a KLogger instance that receives messages for two topics (topic1, topic2) on ports 2001, 2002 respectively.  It uses 4GB  worth of heap and will buffer up to a GB of messages for both topics (in the event Kafka cannot ack) before dropping.
 
 /opt/klogger/config/klogger-env.sh (defines runtime configuration and JVM properties)
 
-	JAVA=``which java``
+	JAVA=`which java`
 	BASEDIR=/opt/klogger
 	CONFIGDIR="$BASEDIR/config"
 	LOGDIR="$BASEDIR/logs"
@@ -52,7 +46,7 @@ Below is an example configuration for running a KLogger instance that receives m
 	JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:$LOG4JPROPERTIES"
 
 	CLASSPATH=$CONFIGDIR
-	for file in ``find $BASEDIR -name "*.jar"``
+	for file in `find $BASEDIR -name "*.jar"`
 	do
 		if [[ "x$CLASSPATH" == "x" ]]
 		then
@@ -87,29 +81,24 @@ Below is an example configuration for running a KLogger instance that receives m
 	log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
 	log4j.appender.stdout.layout.ConversionPattern=[%d] %p %m (%c)n
 
-	# rolling log file
 	log4j.appender.kloggerAppender=org.apache.log4j.RollingFileAppender
 	log4j.appender.kloggerAppender.maxFileSize=20MB
 	log4j.appender.kloggerAppender.maxBackupIndex=5
 	log4j.appender.kloggerAppender.layout=org.apache.log4j.PatternLayout
 	log4j.appender.kloggerAppender.layout.ConversionPattern=%5p [%t] %d{ISO8601} %m%n
-	log4j.appender.kloggerAppender.File=$${klogger.logs.dir}/server.log
+	log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
 
-**Running**
-
+## Running
 After configuration simply start the service 'klogger start'.  The package also creates a symbolic from /lib/init/upstart-job to /etc/init.d/klogger so existing 'service' configurations are respected.
 
-**Monitoring**
-
+## Monitoring
 Exposed via (Coda Hale's Metric's)[https://github.com/dropwizard/metrics] are:
 
 Klogger:
-
 * Meter: bytesReceived
 * Meter: bytesReceivedTotal
 
 Krackle:
-
 * Meter: received
 * Meter: receivedTotal
 * Meter: sent
@@ -119,10 +108,8 @@ Krackle:
 * Meter: doppedSendFail
 * Meter: droppedSendFailTotal
 
-**Contributing**
-
+## Contributing
 To contribute code to this repository you must be [signed up as an official contributor](http://blackberry.github.com/howToContribute.html).
 
 ## Disclaimer
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
