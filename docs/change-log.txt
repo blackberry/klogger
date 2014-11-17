@@ -1,0 +1,6 @@
+Klogger Changs in 0.6.6:
+
+- Project builds now produce a complete DEB package for deployments
+- Added REAME
+- Added sample configuratons
+- Added init scripts
