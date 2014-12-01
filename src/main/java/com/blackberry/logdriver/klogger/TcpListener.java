@@ -16,16 +16,14 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blackberry.logdriver.klogger.Configuration.Source;
-
 public class TcpListener implements Runnable
 {
 	private static final Logger LOG = LoggerFactory.getLogger(TcpListener.class);
 
 	private Configuration conf;
-	private Source source;
+	private PortSource source;
 
-	public TcpListener(Configuration conf, Source s)
+	public TcpListener(Configuration conf, PortSource s)
 	{
 		this.conf = conf;
 		this.source = s;
@@ -43,7 +41,7 @@ public class TcpListener implements Runnable
 			while (true)
 			{
 				Socket s = ss.accept();
-				LogReader r = new LogReader(conf, source, s);
+				ServerSocketLogReader r = new ServerSocketLogReader(conf, source, s);
 				Thread t = new Thread(r);
 				t.start();
 			}

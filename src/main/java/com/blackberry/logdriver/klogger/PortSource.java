@@ -10,14 +10,16 @@
 
 package com.blackberry.logdriver.klogger;
 
-/**
- *
- * @author dariens
- */
-public class PortBasedSource extends Source
+public class PortSource extends Source
 {
 	private int port;
-
+	
+	public PortSource(String port, String topic, Boolean quickRotate, long quickRotateMessageBlocks)
+	{
+		super(topic, quickRotate, quickRotateMessageBlocks);		
+		this.port = Integer.parseInt(port);
+	}
+	
 	public int getPort()
 	{
 		return port;
@@ -28,5 +30,10 @@ public class PortBasedSource extends Source
 		this.port = port;
 	}
 	
-	
+	@Override
+	public String toString()
+	{
+		return "PortSource: topic=" + this.getTopic() + ", port=" + this.getPort();
+	}
+
 }

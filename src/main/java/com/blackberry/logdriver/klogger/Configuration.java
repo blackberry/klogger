@@ -20,6 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.blackberry.krackle.producer.ProducerConfiguration;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class for configuring KLogger.
@@ -127,7 +132,9 @@ public class Configuration extends ProducerConfiguration
 {
 	private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
 
-	private List<Source> sources;
+	//private List<PortSource> portSources;
+	private ArrayList<PortSource> portSources = new ArrayList<>();
+	private ArrayList<FileSource> fileSources = new ArrayList <>();	
 	private String clientId;
 	private String kafkaKey;
 	private boolean rotatePartitions;
@@ -196,47 +203,81 @@ public class Configuration extends ProducerConfiguration
 
 		LOG.info("Port to topic mappings:");
 
-		sources = new ArrayList<Source>();
+		//sources = new ArrayList<? extends Source>();
 		
 		Set<String> sourceList = props.stringPropertyNames();
 
 		for (String curElement : sourceList)
 		{
-			if (curElement.matches("^source\\..*\\.topic$"))
-			{
-				Source source = new Source();
-				String curTopic = curElement.split("\\.")[1];
-
-				if (props.getProperty("source." + curTopic + ".port") == null)
-				{
-					LOG.error("Configured Topic {} does not have a port defined - skipping", curTopic);
-					continue;
-				}
+			Pattern pattern = Pattern.compile("^source\\.([^\\.]+)\\.(port|file)$", Pattern.CASE_INSENSITIVE);
+			Matcher matcher = pattern.matcher(curElement);
+			
+			if (matcher.find())
+			{				
+				String topic = matcher.group(1);
+				String sourceType = matcher.group(2);
+				String sourceValue = props.getProperty("source." + topic + "." + sourceType);
 				
-				if (Boolean.parseBoolean(props.getProperty("source." + curTopic + ".quick.rotate", "false")))
-				{
-					LOG.info("Configured topic {} using Quick Rotate", curTopic);
+				Boolean quickRotate = Boolean.parseBoolean(props.getProperty("source." + topic + ".quick.rotate", "false").trim());				
+				Long quickRotateMessageBlocks = Long.parseLong(props.getProperty("source." + topic + ".quick.rotate.msgblks", "0").trim());
+				
+				if (sourceType.equals("port"))
+				{					
+					PortSource source = new PortSource(sourceValue, topic, quickRotate, quickRotateMessageBlocks);
+					portSources.add(source);
+					LOG.info("    Adding a new source: {} ", source);
 				}
-
-				source.setPort(Integer.parseInt(props.getProperty("source." + curTopic + ".port").trim()));
-				source.setTopic(props.getProperty("source." + curTopic + ".topic"));
-				source.setQuickRotate(Boolean.parseBoolean(props.getProperty("source." + curTopic + ".quick.rotate", "false").trim()));
-				source.setQuickRotateMessageBlocks(Long.parseLong(props.getProperty("source." + curTopic + ".quick.rotate.msgblks", "0").trim()));
-				sources.add(source);
-				LOG.info("    {} ==> {}", source.getPort(), source.getTopic());
+				else if (sourceType.equals("file"))
+				{
+					File file = new File(sourceValue);
+					
+					if (file.isDirectory())
+					{
+						LOG.warn("Skippping file based source for {} because it is a directory", sourceValue);
+						continue;
+					}
+					
+					// Get the specified absolute path of the file's parent directory
+					
+					File parentDirectory = new File(file.getAbsoluteFile().getParentFile().getAbsolutePath());
+					
+					if (!parentDirectory.exists())
+					{
+						LOG.warn("Skippping file based source for {} because parent directory {} does not exist", sourceValue, parentDirectory);
+						continue;
+					}
+					
+					if (!file.exists())
+					{
+						LOG.warn("Specified file {} does not exist (although the parrent directory does) will be watched for creation", file);
+					}
+					
+					FileSource source = new FileSource(sourceValue, topic, quickRotate, quickRotateMessageBlocks);
+					fileSources.add(source);
+					LOG.info("    Adding a new source: {} ", source);						
+				}
 			}
 		}
-
 	}
 
-	public List<Source> getSources()
+	public List<PortSource> getPortSources()
 	{
-		return sources;
+		return portSources;
 	}
 
-	public void setSources(List<Source> sources)
+	public void setPortSources(ArrayList<PortSource> sources)
 	{
-		this.sources = sources;
+		this.portSources = sources;
+	}
+
+	public List<FileSource> getFileSources()
+	{
+		return fileSources;
+	}
+
+	public void setFileSources(ArrayList<FileSource> sources)
+	{
+		this.fileSources = sources;
 	}
 
 	public String getClientId()
@@ -307,53 +348,5 @@ public class Configuration extends ProducerConfiguration
 	public void setValidateUtf8(boolean validateUtf8)
 	{
 		this.validateUtf8 = validateUtf8;
-	}
-
-	public static class Source
-	{
-		private int port;
-		private String topic;
-		private boolean quickRotate;
-		private long quickRotateMessageBlocks;
-
-		public int getPort()
-		{
-			return port;
-		}
-
-		public void setPort(int port)
-		{
-			this.port = port;
-		}
-
-		public String getTopic()
-		{
-			return topic;
-		}
-
-		public void setTopic(String topic)
-		{
-			this.topic = topic;
-		}
-
-		public boolean getQuickRotate()
-		{
-			return quickRotate;
-		}
-
-		public void setQuickRotate(boolean quickRotate)
-		{
-			this.quickRotate = quickRotate;
-		}
-
-		public long getQuickRotateMessageBlocks()
-		{
-			return quickRotateMessageBlocks;
-		}
-
-		public void setQuickRotateMessageBlocks(long quickRotateMessageBlocks)
-		{
-			this.quickRotateMessageBlocks = quickRotateMessageBlocks;
-		}
 	}
 }

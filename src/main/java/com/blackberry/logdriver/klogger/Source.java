@@ -10,43 +10,46 @@
 
 package com.blackberry.logdriver.klogger;
 
-/**
- *
- * @author dariens
- */
-public abstract class Source
+abstract class Source
 {
-		private String topic;
-		private boolean quickRotate;
-		private long quickRotateMessageBlocks;
+	private String topic;
+	private boolean quickRotate;
+	private long quickRotateMessageBlocks;
 
-		public String getTopic()
-		{
-			return topic;
-		}
+	Source(String topic, Boolean quickRotate, long quickRotateMessageBlocks)
+	{
+		this.topic = topic;
+		this.quickRotate = quickRotate;
+		this.quickRotateMessageBlocks = quickRotateMessageBlocks;
+	}
+	
+	public String getTopic()
+	{
+		return topic;
+	}
 
-		public void setTopic(String topic)
-		{
-			this.topic = topic;
-		}
+	public void setTopic(String topic)
+	{
+		this.topic = topic;
+	}
 
-		public boolean getQuickRotate()
-		{
-			return quickRotate;
-		}
+	public boolean getQuickRotate()
+	{
+		return quickRotate;
+	}
 
-		public void setQuickRotate(boolean quickRotate)
-		{
-			this.quickRotate = quickRotate;
-		}
+	public void setQuickRotate(boolean quickRotate)
+	{
+		this.quickRotate = quickRotate;
+	}
 
-		public long getQuickRotateMessageBlocks()
-		{
-			return quickRotateMessageBlocks;
-		}
+	public long getQuickRotateMessageBlocks()
+	{
+		return quickRotateMessageBlocks;
+	}
 
-		public void setQuickRotateMessageBlocks(long quickRotateMessageBlocks)
-		{
-			this.quickRotateMessageBlocks = quickRotateMessageBlocks;
-		}	
+	public void setQuickRotateMessageBlocks(long quickRotateMessageBlocks)
+	{
+		this.quickRotateMessageBlocks = quickRotateMessageBlocks;
+	}
 }

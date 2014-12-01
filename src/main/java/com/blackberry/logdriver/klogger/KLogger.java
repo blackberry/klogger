@@ -19,12 +19,14 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import com.blackberry.krackle.MetricRegistrySingleton;
-import com.blackberry.logdriver.klogger.Configuration.Source;
 import com.codahale.metrics.CsvReporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class KLogger
 {
-
+	private static final Logger LOG = LoggerFactory.getLogger(KLogger.class);
 	public static void main(String[] args)
 	{
 		// Check to see if we want to use CSV metric logging
@@ -54,7 +56,7 @@ public class KLogger
 		Configuration conf = null;
 		try
 		{
-			InputStream propsIn = null;
+			InputStream propsIn;
 			Properties props = new Properties();
 			
 			if (System.getProperty("klogger.configuration") != null)
@@ -77,15 +79,53 @@ public class KLogger
 			System.exit(1);
 		}
 
-		// Listen on each port
+		/**
+		 * Does this not handle recovering from any exceptions that may  
+		 * be throw in either TcpListener or ServerSocketLogReader?
+		 */
 		
-		List<Thread> threads = new ArrayList<Thread>();
-		for (Source s : conf.getSources())
+		List<Thread> threads = new ArrayList<>();
+		
+		/**
+		 * Instantiate TcpListener's for each of the ports we've been configured for
+		 * These will then instantiate ServerSocketLogReader threads themselves 
+		 * that will listen on the TCP port and produce for their configured topic.
+		 */
+		
+		if (conf.getPortSources().size() > 0)
 		{
-			TcpListener listener = new TcpListener(conf, s);
-			Thread t = new Thread(listener);
-			t.start();
-			threads.add(t);
+			for (PortSource s : conf.getPortSources())
+			{
+				TcpListener listener = new TcpListener(conf, s);
+				Thread t = new Thread(listener);
+				t.start();
+				threads.add(t);
+			}
+		}
+		else
+		{
+			System.err.println("There are no configured port based sources");
+		}
+		
+		/**
+		 * Instantiate FileListener's for each of the paths we've been configured for
+		 * These will instantiate file listeners that will monitor the parent directories
+		 * for files that are modified (deleted, re-created) while we're reading them
+		 */
+		
+		for (FileSource s : conf.getFileSources())
+		{
+			try
+			{
+				FileListener fileListener = new FileListener(conf, s);
+				Thread t = new Thread(fileListener);
+				t.start();
+				threads.add(t);
+			}
+			catch (Exception e)
+			{
+				LOG.error("Error creating file listener thread for source file {}, error: {}", s.getFile(), e);
+			}
 		}
 
 		for (Thread t : threads)
@@ -96,7 +136,7 @@ public class KLogger
 			} 
 			catch (InterruptedException e)
 			{
-				e.printStackTrace();
+				LOG.error("Thread interuped exception: {}", e);
 			}
 		}
 	}

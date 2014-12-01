@@ -10,9 +10,6 @@
 
 package com.blackberry.logdriver.klogger;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,20 +19,29 @@ import org.slf4j.LoggerFactory;
 
 import com.blackberry.krackle.MetricRegistrySingleton;
 import com.blackberry.krackle.producer.Producer;
-import com.blackberry.logdriver.klogger.Configuration.Source;
 import com.codahale.metrics.Meter;
 
-public class LogReader implements Runnable
+import java.io.FileInputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
+
+
+public class FileLogReader implements Runnable
 {
-	private static final Logger LOG = LoggerFactory.getLogger(LogReader.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ServerSocketLogReader.class);
 
 	private static final Object producersLock = new Object();
-	private static final Map<String, Producer> producers = new HashMap<String, Producer>();
+	private static final Map<String, Producer> producers = new HashMap<>();
 
 	private final int maxLine;
 
-	private final Socket socket;
 	private final Producer producer;
+	
+	private final FileSource source;
+	private long position;
 
 	private final boolean encodeTimestamp;
 	private final boolean validateUTF8;
@@ -44,12 +50,36 @@ public class LogReader implements Runnable
 	private final Meter mBytesReceivedTotal;
 	private final Meter mLinesReceived;
 	private final Meter mLinesReceivedTotal;
-
-	public LogReader(Configuration conf, Source source, Socket s) throws Exception
+	
+	private Boolean finished = false;
+	
+	public void setFinished(Boolean state) 
 	{
-		LOG.info("Created new {} for connection {}", this.getClass().getName(), s.getRemoteSocketAddress());
+		this.finished = state;
+	}
+	
+	public FileLogReader(Configuration conf, FileSource source) throws Exception
+	{
+		this(conf, source, 0);
+	}
+	
+	public long getPostion() 
+	{
+		return this.position;		
+	}
+	
+	public void setPostion(long positon) 
+	{
+		this.position = positon;		
+	}
 
-		socket = s;
+	public FileLogReader(Configuration conf, FileSource source, long positon) throws Exception
+	{
+		this.source = source;
+		this.position = positon;
+				
+		LOG.info("Created new {} for connection {}", this.getClass().getName(), source);
+		
 		maxLine = conf.getMaxLineLength();
 		encodeTimestamp = conf.isEncodeTimestamp();
 		validateUTF8 = conf.isValidateUtf8();
@@ -98,13 +128,13 @@ public class LogReader implements Runnable
 			utf8Validator = new UTF8Validator();
 		}
 
-		byte[] buffer = new byte[maxLine];
+		byte[] bytes = new byte[maxLine];
+		
+		ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
-		// Calculate send buffer size.
-		// If we're validating UTF-8, then theoretically, each byte could be
-		// replaced by the three byte replacement character. So the send buffer
-		// needs to be triple the max line length.
-		// If we're encoding the timestamp, then that adds 10 bytes.
+		// Calculate send buffer size. If we're validating UTF-8, then theoretically, each byte could be
+		// replaced by the three byte replacement character. So the send buffer needs to be triple 
+		// the max line length.  If we're encoding the timestamp, then that adds 10 bytes.
 		
 		byte[] sendBytes;
 		{
@@ -125,58 +155,83 @@ public class LogReader implements Runnable
 		ByteBuffer sendBuffer = ByteBuffer.wrap(sendBytes);
 
 		int start = 0;
-		int limit = 0;
-		int newline = 0;
-		int bytesRead = 0;
+		int limit;
+		int newline;
+		int bytesRead;
 
 		try
 		{
-			InputStream in = socket.getInputStream();
-
-			while (true)
+			LOG.info("Instantiating InputStream for {}", source.getFile());
+			
+			FileInputStream in = new FileInputStream(source.getFile());			
+			FileChannel channel = in.getChannel();
+			Path p = Paths.get(source.getFile().toURI());
+			BasicFileAttributes bfa = Files.readAttributes(p, BasicFileAttributes.class);
+			
+			if (bfa.isRegularFile())
 			{
-				// Try to fill the buffer
-				bytesRead = in.read(buffer, start, maxLine - start);
+				LOG.info("Setting intitial positon of regular file {} to {}", source.getFile(), position);
+				channel.position(position);
+			}
+			else
+			{
+				LOG.info("Not setting initial positon of non-regular file {}", source.getFile());
+			}
+			
+			while (!finished)
+			{
+				buffer.position(start);
+				bytesRead = channel.read(buffer);
 				
-				// LOG.trace("Read {} bytes", bytesRead);
+				if (bfa.isRegularFile() && channel.size() < position)
+				{
+					LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero", source.getFile(), channel.size(), position);
+					channel.position(0);
+					position = 0;
+				}								
+
 				if (bytesRead == -1)
 				{
-					break;
+					continue;
+				}
+
+				//LOG.trace("Read {} bytes", bytesRead);
+				
+				if (bfa.isRegularFile())
+				{
+					//LOG.trace("Position in file is now: {}", channel.position());
+					position = channel.position();
 				}
 				
+				//LOG.trace("Position in buffer is now: {}", buffer.position());
+								
 				mBytesReceived.mark(bytesRead);
 				mBytesReceivedTotal.mark(bytesRead);
 
 				limit = start + bytesRead;
 				start = 0;
 
-				// String bufferString = new String(buffer, 0, limit, "UTF-8");
-				// LOG.info("buffer = {}", bufferString);
-				// LOG.trace("start={}, limit={}", start, limit);
-				// Find newlines
-				
 				while (true)
 				{
-					newline = -1;
+					newline = -1;					
 					for (int i = start; i < limit; i++)
 					{
-						if (buffer[i] == '\n')
+						if (buffer.get(i) == '\n')
 						{
 							newline = i;
+							//LOG.trace("Newline at {}", newline);
 							break;
 						}
 					}
 					
-					// LOG.trace("Newline at {}", newline);
-
 					// Found a newline
 					if (newline >= 0)
 					{
 						mLinesReceived.mark();
 						mLinesReceivedTotal.mark();
 
-						// LOG.info("Sending (pos {}, len {}):{}", start, newline - start,
-						// new String(buffer, start, newline - start, "UTF-8"));
+						LOG.trace("Sending (pos {}, len {}):{}", start, newline - start, new String(bytes, start, newline - start, "UTF-8"));
+						
 						sendBuffer.clear();
 
 						if (encodeTimestamp)
@@ -191,12 +246,12 @@ public class LogReader implements Runnable
 
 						if (validateUTF8)
 						{
-							utf8Validator.validate(buffer, start, newline - start);
+							utf8Validator.validate(bytes, start, newline - start);
 							sendBuffer.put(utf8Validator.getResultBytes(), 0, utf8Validator.getResultBuffer().limit());
 						} 
 						else
 						{
-							sendBuffer.put(buffer, start, newline - start);
+							sendBuffer.put(bytes, start, newline - start);
 						}
 
 						producer.send(sendBytes, 0, sendBuffer.position());
@@ -207,18 +262,15 @@ public class LogReader implements Runnable
 					} // did not find a newline
 					else
 					{
-						// LOG.info("No newline.  start={}, limit={}", start, limit);
-						// if the buffer is full, send it all. Otherwise, do
-						// nothing.
+						//LOG.trace("No newline.  start={}, limit={}", start, limit);
+						// if the buffer is full, send it all. Otherwise, do nothing.
 						
 						if (start == 0 && limit == maxLine)
 						{
 							mLinesReceived.mark();
 							mLinesReceivedTotal.mark();
 
-							// LOG.info("Sending line with no newline");
-							// LOG.info("Sending:{}", new String(buffer, 0, maxLine,
-							// "UTF-8"));
+							LOG.trace("Sending log with no new-line:{}", new String(bytes, 0, maxLine, "UTF-8"));
 							
 							sendBuffer.clear();
 
@@ -233,17 +285,17 @@ public class LogReader implements Runnable
 
 							if (validateUTF8)
 							{
-								utf8Validator.validate(buffer, 0, maxLine);
+								utf8Validator.validate(bytes, 0, maxLine);
 								sendBuffer.put(utf8Validator.getResultBytes(), 0, utf8Validator.getResultBuffer().limit());
-							} else
+							} 
+							else
 							{
-								sendBuffer.put(buffer, 0, maxLine);
+								sendBuffer.put(bytes, 0, maxLine);
 							}
 
 							producer.send(sendBytes, 0, sendBuffer.position());
 
 							start = 0;
-							limit = 0;
 							break;
 							
 						} // if there is still data, then shift it to the start
@@ -251,50 +303,33 @@ public class LogReader implements Runnable
 						{
 							if (start > 0 && start < limit)
 							{
-								// LOG.info("Shifting {} bytes.", limit - start);
-								// String bufferString = new String(buffer, "UTF-8");
-								// LOG.info("buffer = {}", bufferString);
-
 								int toMove = limit - start;
-								// figure out how much room we have to move at once.
-								int moveSize = start;
-
+								int moveSize;
 								int done = 0;
+								
 								while (done < toMove)
 								{
 									moveSize = Math.min(start - done, limit - start);
+
+									System.arraycopy(bytes, start, bytes, done, moveSize);
 									
-									// LOG.info("    Start={}, done={}, limit={}",start,done,limit);
-									// LOG.info("    Move {} bytes from {} to {}", moveSize, start,
-									// done);
-									
-									System.arraycopy(buffer, start, buffer, done, moveSize);
 									done += moveSize;
 									start += moveSize;
-									
-									// LOG.info("start={}, done={}, moveSize={}", start, done,
-									// moveSize);
-									// bufferString = new String(buffer, UTF8);
-									// LOG.trace("buffer = {}", bufferString);
 								}
 
 								start = toMove;
-								limit = toMove;
-								break;
-								
-							} // We used all the data
+								break;								
+							}
 							else
 							{
 								if (start >= limit)
 								{
-									// LOG.info("All data was used.");
+									//LOG.info("All the data has been read");
 									start = 0;
-									limit = 0;
 									break;
 								} 
 								else
 								{
-									// start == 0, so move it to the limit for the next pass.
 									start = limit;
 									break;
 								}
@@ -304,25 +339,15 @@ public class LogReader implements Runnable
 				}
 
 			}
-		} 
+		} 		
 		catch (Throwable t)
 		{
+			LOG.error("An error has occured: {}", t);
+			
 			t.printStackTrace();
 		} 
-		finally
-		{
-			try
-			{
-				socket.close();
-				// Producers never close. The number of producers is fairly small, so
-				// this shouldn't be an issue.
-				// We may need to fix that at some point.
-				// producer.close();
-			} 
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
+	
+		LOG.info("And we're done here: {}", source.getFile());
 	}
+	
 }
