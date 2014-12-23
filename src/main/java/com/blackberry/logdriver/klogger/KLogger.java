@@ -23,11 +23,10 @@ import com.codahale.metrics.CsvReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class KLogger
 {
 	private static final Logger LOG = LoggerFactory.getLogger(KLogger.class);
-	public static void main(String[] args)
+	public static void main(String[] args)		 
 	{
 		// Check to see if we want to use CSV metric logging
 		
@@ -53,7 +52,8 @@ public class KLogger
 
 		// Read in properties file and configure ports and Kafka appender
 		
-		Configuration conf = null;
+		List<Thread> threads = new ArrayList<>();
+		
 		try
 		{
 			InputStream propsIn;
@@ -69,63 +69,26 @@ public class KLogger
 				propsIn = KLogger.class.getClassLoader().getResourceAsStream("klogger.properties");
 				props.load(propsIn);
 			}
-
-			conf = new Configuration(props);
+			
+			ArrayList<Source> sources = Configuration.getSources(props);
+			
+			if (sources.isEmpty())
+			{
+				System.err.println("There are no configured sources");
+			}
+			
+			for (Source source : sources)
+			{
+				Thread thread = new Thread(source.getListener());
+				thread.start();
+			}
+			
 		} 
 		catch (Throwable t)
 		{
 			System.err.println("Error while configuring.");
 			t.printStackTrace();
 			System.exit(1);
-		}
-
-		/**
-		 * Does this not handle recovering from any exceptions that may  
-		 * be throw in either TcpListener or ServerSocketLogReader?
-		 */
-		
-		List<Thread> threads = new ArrayList<>();
-		
-		/**
-		 * Instantiate TcpListener's for each of the ports we've been configured for
-		 * These will then instantiate ServerSocketLogReader threads themselves 
-		 * that will listen on the TCP port and produce for their configured topic.
-		 */
-		
-		if (conf.getPortSources().size() > 0)
-		{
-			for (PortSource s : conf.getPortSources())
-			{
-				TcpListener listener = new TcpListener(conf, s);
-				Thread t = new Thread(listener);
-				t.start();
-				threads.add(t);
-			}
-		}
-		else
-		{
-			System.err.println("There are no configured port based sources");
-		}
-		
-		/**
-		 * Instantiate FileListener's for each of the paths we've been configured for
-		 * These will instantiate file listeners that will monitor the parent directories
-		 * for files that are modified (deleted, re-created) while we're reading them
-		 */
-		
-		for (FileSource s : conf.getFileSources())
-		{
-			try
-			{
-				FileListener fileListener = new FileListener(conf, s);
-				Thread t = new Thread(fileListener);
-				t.start();
-				threads.add(t);
-			}
-			catch (Exception e)
-			{
-				LOG.error("Error creating file listener thread for source file {}, error: {}", s.getFile(), e);
-			}
 		}
 
 		for (Thread t : threads)

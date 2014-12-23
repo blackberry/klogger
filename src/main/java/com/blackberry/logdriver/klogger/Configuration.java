@@ -10,201 +10,72 @@
 
 package com.blackberry.logdriver.klogger;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.io.File;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blackberry.krackle.producer.ProducerConfiguration;
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.blackberry.common.props.Parser;
+import com.blackberry.krackle.producer.ProducerConfiguration;
+
 
 /**
  * Class for configuring KLogger.
  *
  * It extends ProducerConfiguration from Krackle, so any property that is valid there is also valid here.
  *
- * In addition, the following are possible.
+ * Previously existing HTML Javadoc describing the additional properties has been removed.  Will be added back in
+ * after a review of the delta between these and the default Krackle properties
  *
- * <table>
- * <tr>
- * <th>property</th>
- * <th>default</th>
- * <th>description</th>
- * </tr>
- *
- * <tr>
- * <td>client.id</td>
- * <td>the local hostname</td>
- * <td>The client ID to send with requests to the broker.</td>
- * </tr>
- *
- *
- *
- * <tr>
- * <td>kafka.key</td>
- * <td>the local hostname</td>
- * <td>The key to use when partitioning all data topics sent from this instance.
- * </td>
- * </tr>
- *
- * <tr>
- * <td>kafka.rotate</td>
- * <td>whether to RR through partitions</td>
- * <td>Whether or not we switch to the next available partitions on each Meta-Data Refresh or not (default=false)
- * </td>
- * </tr>
- *
- * <tr>
- * <td>tcp.receive.buffer.bytes</td>
- * <td>1024 * 1024</td>
- * <td>Suggested size of the TCP receive buffer.</td>
- * </tr>
- *
- * <tr>
- * <td>max.line.length</td>
- * <td>64 * 1024</td>
- * <td>Maximum line length accepted. Longer lines will be split into multiple lines of at most this size.</td>
- * </tr>
- *
- * <tr>
- * <td>encode.timestamp</td>
- * <td>true</td>
- * <td>Whether or not to encode the timestamp in front of the logline</td>
- * </tr>
- *
- * <tr>
- * <td>validate.utf8</td>
- * <td>true</td>
- * <td>If this is set to true, then all incoming log lines will be validated to ensure that they are correctly encoded in UTF-8. Invalid bytes will be replaced by the replacement character (U+FFFD).</td>
- * </tr>
- *
- * <tr>
- * <td>sources</td>
- * <td></td>
- * <td>(required) A comma separated list of source names which should be active.
- * </td>
- * </tr>
- *
- * <tr>
- * <td>source.<em>sourceName</em>.port</td>
- * <td></td>
- * <td>(required) One entry is required for each source listed in <code>sources</code>.
- * <p>
- * The port to listen on for messages send via this source.</td>
- * </tr>
- *
- * <tr>
- * <td>source.<em>sourceName</em>.topic</td>
- * <td></td>
- * <td>(required) One entry is required for each source listed in <code>sources</code>.
- * <p>
- * The Kafka topic that messages sent via this <code>source</code> should be sent to.</td>
- * </tr>
- *
- * <tr>
- * <td>source.<em>sourceName</em>.quick.rotate</td>
- * <td>(optional) This is optional for each source listed in <code>sources</code>
- * <p>
- * Whether or not we will do quickRotate for this Topic.</p>
- * </td>
- * </tr>
- *
- * <tr>
- * <td>source.<em>sourceName</em>.quick.rotate.msgblks</td>
- * <td>(optional) This is optional for each source listed in <code>sources</code>
- * <p>
- * Whether or not we will do quickRotate for this Topic.</p>
- * </td>
- * </tr>
- *
- *
- * </table>
  */
+
 public class Configuration extends ProducerConfiguration
 {
-	private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);
-
-	//private List<PortSource> portSources;
-	private ArrayList<PortSource> portSources = new ArrayList<>();
-	private ArrayList<FileSource> fileSources = new ArrayList <>();	
-	private String clientId;
-	private String kafkaKey;
-	private boolean rotatePartitions;
-	private int tcpReceiveBufferBytes;
-	private int maxLineLength;
-	private boolean encodeTimestamp;
-	private boolean validateUtf8;
-
-	public Configuration(Properties props) throws Exception
+	// These are the original configuration attributes from verson 0.6.4
+	private static final Logger LOG = LoggerFactory.getLogger(Configuration.class);	
+	private String clientId = InetAddress.getLocalHost().getHostName();
+	private String kafkaKey = InetAddress.getLocalHost().getHostName();	
+	private int maxLineLength = 64 * 1024;
+	private boolean encodeTimestamp = true;
+	private boolean validateUtf8 = true;
+	
+	public Configuration(Properties props, String topicName) throws Exception
 	{
-		super(props);
+		super(props, topicName);
+		
+		Parser parser = new Parser(props);
 
-		if (props.containsKey("client.id"))
-		{
-			clientId = props.getProperty("client.id");
-		} 
-		else
-		{
-			// Try to figure out my local hostname.
-			clientId = InetAddress.getLocalHost().getHostName();
-		}
+		clientId = parser.parseString("client.id", clientId);
+		kafkaKey = parser.parseString("kafka.key", kafkaKey);
+		maxLineLength = Integer.parseInt(props.getProperty("max.line.length", Integer.toString(maxLineLength)).trim());
+		encodeTimestamp = Boolean.parseBoolean(props.getProperty("encode.timestamp", Boolean.toString(encodeTimestamp)).trim());
+		validateUtf8 = Boolean.parseBoolean(props.getProperty("validate.utf8", Boolean.toString(validateUtf8)).trim());
+				
+		// So this topic is not configured to use the shared buffers, so require explicit buffer properties
 		
 		LOG.info("client.id = {}", clientId);
-
-		if (props.containsKey("kafka.key"))
-		{
-			kafkaKey = props.getProperty("kafka.key");
-		} 
-		else
-		{
-			// Try to figure out my local hostname.
-			kafkaKey = InetAddress.getLocalHost().getHostName();
-		}
-		
-		LOG.info("kafka.key = {}", kafkaKey);
-
-		rotatePartitions = Boolean.parseBoolean(props.getProperty("kafka.rotate", "false").trim());
-		
-		LOG.info("kafka.rotate = {}", rotatePartitions);
-
-		tcpReceiveBufferBytes = Integer.parseInt(props.getProperty("tcp.receive.buffer.bytes", "" + ONE_MB));
-		
-		if (tcpReceiveBufferBytes < 1)
-		{
-			throw new Exception("tcp.receive.buffer.bytes must be positive.  Got " + tcpReceiveBufferBytes);
-		}
-		
-		LOG.info("tcp.receive.buffer.bytes = {}", tcpReceiveBufferBytes);
-
-		maxLineLength = Integer.parseInt(props.getProperty("max.line.length", "" + (64 * 1024)));
-		
-		if (maxLineLength < 1)
-		{
-			throw new Exception("max.line.length must be positive.  Got " + maxLineLength);
-		}
-		
+		LOG.info("kafka.key = {}", kafkaKey);		
 		LOG.info("max.line.length = {}", maxLineLength);
-
-		encodeTimestamp = Boolean.parseBoolean(props.getProperty("encode.timestamp", "true").trim());
-		
 		LOG.info("encode.timestamp = {}", encodeTimestamp);
-
-		validateUtf8 = Boolean.parseBoolean(props.getProperty("validate.utf8", "true").trim());
-		
-		LOG.info("validate.utf8 = {}", encodeTimestamp);
-
-		LOG.info("Port to topic mappings:");
-
-		//sources = new ArrayList<? extends Source>();
-		
+		LOG.info("validate.utf8 = {}", validateUtf8);				
+	}	
+	
+	/**
+	 * Returns the sources defined in the properties
+	 * @param props
+	 * @return
+	 * @throws ConfigurationException
+	 */
+	public static ArrayList<Source> getSources(Properties props) throws ConfigurationException, Exception
+	{
+		ArrayList<Source> sources = new ArrayList<>();
 		Set<String> sourceList = props.stringPropertyNames();
 
 		for (String curElement : sourceList)
@@ -216,16 +87,13 @@ public class Configuration extends ProducerConfiguration
 			{				
 				String topic = matcher.group(1);
 				String sourceType = matcher.group(2);
-				String sourceValue = props.getProperty("source." + topic + "." + sourceType);
-				
-				Boolean quickRotate = Boolean.parseBoolean(props.getProperty("source." + topic + ".quick.rotate", "false").trim());				
-				Long quickRotateMessageBlocks = Long.parseLong(props.getProperty("source." + topic + ".quick.rotate.msgblks", "0").trim());
+				String sourceValue = props.getProperty("source." + topic + "." + sourceType);				
 				
 				if (sourceType.equals("port"))
 				{					
-					PortSource source = new PortSource(sourceValue, topic, quickRotate, quickRotateMessageBlocks);
-					portSources.add(source);
-					LOG.info("    Adding a new source: {} ", source);
+					PortSource source = new PortSource(sourceValue, topic);
+					sources.add(source);
+					LOG.info("    Adding a new port source: {} ", source);
 				}
 				else if (sourceType.equals("file"))
 				{
@@ -236,8 +104,6 @@ public class Configuration extends ProducerConfiguration
 						LOG.warn("Skippping file based source for {} because it is a directory", sourceValue);
 						continue;
 					}
-					
-					// Get the specified absolute path of the file's parent directory
 					
 					File parentDirectory = new File(file.getAbsoluteFile().getParentFile().getAbsolutePath());
 					
@@ -252,34 +118,23 @@ public class Configuration extends ProducerConfiguration
 						LOG.warn("Specified file {} does not exist (although the parrent directory does) will be watched for creation", file);
 					}
 					
-					FileSource source = new FileSource(sourceValue, topic, quickRotate, quickRotateMessageBlocks);
-					fileSources.add(source);
-					LOG.info("    Adding a new source: {} ", source);						
-				}
-			}
+					FileSource source = new FileSource(sourceValue, topic);
+					sources.add(source);
+					LOG.info("    Adding a new file source: {} ", source);						
+				}				
+			}			
 		}
-	}
+		
+		for  (Source source : sources)
+		{
+			LOG.info("Configuring {}", source);
+			source.configure(props);
+		}
 
-	public List<PortSource> getPortSources()
-	{
-		return portSources;
+		
+		return sources;
 	}
-
-	public void setPortSources(ArrayList<PortSource> sources)
-	{
-		this.portSources = sources;
-	}
-
-	public List<FileSource> getFileSources()
-	{
-		return fileSources;
-	}
-
-	public void setFileSources(ArrayList<FileSource> sources)
-	{
-		this.fileSources = sources;
-	}
-
+	
 	public String getClientId()
 	{
 		return clientId;
@@ -290,16 +145,6 @@ public class Configuration extends ProducerConfiguration
 		this.clientId = clientId;
 	}
 
-	public boolean getKafkaRotatePartitions()
-	{
-		return rotatePartitions;
-	}
-
-	public void setKafkaRotatePartitions(boolean rotatePartitions)
-	{
-		this.rotatePartitions = rotatePartitions;
-	}
-
 	public String getKafkaKey()
 	{
 		return kafkaKey;
@@ -308,16 +153,6 @@ public class Configuration extends ProducerConfiguration
 	public void setKafkaKey(String kafkaKey)
 	{
 		this.kafkaKey = kafkaKey;
-	}
-
-	public int getTcpReceiveBufferBytes()
-	{
-		return tcpReceiveBufferBytes;
-	}
-
-	public void setTcpReceiveBufferBytes(int tcpReceiveBufferBytes)
-	{
-		this.tcpReceiveBufferBytes = tcpReceiveBufferBytes;
 	}
 
 	public int getMaxLineLength()
@@ -348,5 +183,6 @@ public class Configuration extends ProducerConfiguration
 	public void setValidateUtf8(boolean validateUtf8)
 	{
 		this.validateUtf8 = validateUtf8;
-	}
+	}	
 }
+

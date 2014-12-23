@@ -27,39 +27,30 @@ import com.codahale.metrics.Meter;
 public class ServerSocketLogReader implements Runnable
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ServerSocketLogReader.class);
-
 	private static final Object producersLock = new Object();
-	private static final Map<String, Producer> producers = new HashMap<String, Producer>();
-
+	private static final Map<String, Producer> producers = new HashMap<>();
 	private final int maxLine;
-
 	private final Socket socket;
 	private final Producer producer;
-
 	private final boolean encodeTimestamp;
 	private final boolean validateUTF8;
-
 	private final Meter mBytesReceived;
 	private final Meter mBytesReceivedTotal;
 	private final Meter mLinesReceived;
 	private final Meter mLinesReceivedTotal;
 
-	public ServerSocketLogReader(Configuration conf, Source source, Socket s) throws Exception
+	public ServerSocketLogReader(Source source, Socket s) throws Exception
 	{
 		LOG.info("Created new {} for connection {}", this.getClass().getName(), s.getRemoteSocketAddress());
 
 		socket = s;
-		maxLine = conf.getMaxLineLength();
-		encodeTimestamp = conf.isEncodeTimestamp();
-		validateUTF8 = conf.isValidateUtf8();
+		maxLine = source.getConf().getMaxLineLength();
+		encodeTimestamp = source.getConf().isEncodeTimestamp();
+		validateUTF8 = source.getConf().isValidateUtf8();
 
-		String clientId = conf.getClientId();
-		String key = conf.getKafkaKey();
-		boolean rotatePartitions = conf.getKafkaRotatePartitions();
-
+		String clientId = source.getConf().getClientId();
+		String key = source.getConf().getKafkaKey();
 		String topic = source.getTopic();
-		boolean quickRotate = source.getQuickRotate();
-		long quickRotateMessageBlocks = source.getQuickRotateMessageBlocks();
 
 		MetricRegistrySingleton.getInstance().enableJmx();
 
@@ -73,10 +64,7 @@ public class ServerSocketLogReader implements Runnable
 			} 
 			else
 			{
-				producer = new Producer(conf, clientId, source.getTopic(), key, rotatePartitions,
-					quickRotate, quickRotateMessageBlocks,
-					MetricRegistrySingleton.getInstance().getMetricsRegistry());
-				
+				producer = new Producer(source.getConf(), clientId, source.getTopic(), key, MetricRegistrySingleton.getInstance().getMetricsRegistry());				
 				producers.put(mapKey, producer);
 			}
 		}

@@ -19,13 +19,11 @@ import org.slf4j.LoggerFactory;
 public class TcpListener implements Runnable
 {
 	private static final Logger LOG = LoggerFactory.getLogger(TcpListener.class);
+	
+	private final PortSource source;
 
-	private Configuration conf;
-	private PortSource source;
-
-	public TcpListener(Configuration conf, PortSource s)
+	public TcpListener(PortSource s)
 	{
-		this.conf = conf;
 		this.source = s;
 	}
 
@@ -35,13 +33,13 @@ public class TcpListener implements Runnable
 		try
 		{
 			ServerSocket ss = new ServerSocket(source.getPort());
-			ss.setReceiveBufferSize(conf.getTcpReceiveBufferBytes());
+			ss.setReceiveBufferSize(source.getTcpReceiveBufferBytes());
 			LOG.info("Listening on port {}", source.getPort());
 
 			while (true)
 			{
 				Socket s = ss.accept();
-				ServerSocketLogReader r = new ServerSocketLogReader(conf, source, s);
+				ServerSocketLogReader r = new ServerSocketLogReader(source, s);
 				Thread t = new Thread(r);
 				t.start();
 			}

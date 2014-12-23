@@ -32,20 +32,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class FileLogReader implements Runnable
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ServerSocketLogReader.class);
-
 	private static final Object producersLock = new Object();
 	private static final Map<String, Producer> producers = new HashMap<>();
-
 	private final int maxLine;
-
-	private final Producer producer;
-	
+	private final Producer producer;	
 	private final FileSource source;
 	private long position;
-
 	private final boolean encodeTimestamp;
 	private final boolean validateUTF8;
-
 	private final Meter mBytesReceived;
 	private final Meter mBytesReceivedTotal;
 	private final Meter mLinesReceived;
@@ -58,40 +52,26 @@ public class FileLogReader implements Runnable
 		this.finished = state;
 	}
 	
-	public FileLogReader(Configuration conf, FileSource source) throws Exception
+	public FileLogReader(FileSource source) throws Exception
 	{
-		this(conf, source, 0);
+		this(source, 0);
 	}
 	
-	public long getPostion() 
-	{
-		return this.position;		
-	}
-	
-	public void setPostion(long positon) 
-	{
-		this.position = positon;		
-	}
-
-	public FileLogReader(Configuration conf, FileSource source, long positon) throws Exception
+	public FileLogReader(FileSource source, long positon) throws Exception
 	{
 		this.source = source;
 		this.position = positon;
 				
 		LOG.info("Created new {} for connection {}", this.getClass().getName(), source);
 		
-		maxLine = conf.getMaxLineLength();
-		encodeTimestamp = conf.isEncodeTimestamp();
-		validateUTF8 = conf.isValidateUtf8();
+		maxLine = source.getConf().getMaxLineLength();
+		encodeTimestamp = source.getConf().isEncodeTimestamp();
+		validateUTF8 = source.getConf().isValidateUtf8();
 
-		String clientId = conf.getClientId();
-		String key = conf.getKafkaKey();
-		boolean rotatePartitions = conf.getKafkaRotatePartitions();
-
-		String topic = source.getTopic();
-		boolean quickRotate = source.getQuickRotate();
-		long quickRotateMessageBlocks = source.getQuickRotateMessageBlocks();
-
+		String clientId = source.getConf().getClientId();
+		String key = source.getConf().getKafkaKey();		
+		String topic = source.getTopic();		
+		
 		MetricRegistrySingleton.getInstance().enableJmx();
 
 		synchronized (producersLock)
@@ -104,10 +84,7 @@ public class FileLogReader implements Runnable
 			} 
 			else
 			{
-				producer = new Producer(conf, clientId, source.getTopic(), key, rotatePartitions,
-					quickRotate, quickRotateMessageBlocks,
-					MetricRegistrySingleton.getInstance().getMetricsRegistry());
-				
+				producer = new Producer(source.getConf(), clientId, source.getTopic(), key, MetricRegistrySingleton.getInstance().getMetricsRegistry());				
 				producers.put(mapKey, producer);
 			}
 		}
@@ -117,7 +94,7 @@ public class FileLogReader implements Runnable
 		mLinesReceived = MetricRegistrySingleton.getInstance().getMetricsRegistry().meter("klogger:topics:" + topic + ":lines received");
 		mLinesReceivedTotal = MetricRegistrySingleton.getInstance().getMetricsRegistry().meter("klogger:total:lines received");
 	}
-
+		
 	@Override
 	public void run()
 	{
@@ -349,5 +326,14 @@ public class FileLogReader implements Runnable
 	
 		LOG.info("And we're done here: {}", source.getFile());
 	}
+
+	public long getPostion() 
+	{
+		return this.position;		
+	}
 	
+	public void setPostion(long positon) 
+	{
+		this.position = positon;		
+	}
 }

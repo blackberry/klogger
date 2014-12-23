@@ -11,7 +11,7 @@ KLOGGER_USER=
 
 BASEDIR=/opt/klogger
 CONFIGDIR="$BASEDIR/config"
-LOGDIR="$BASEDIR/logs"
+LOGDIR="/var/log/klogger"
 PIDFILE="/var/run/klogger/klogger.pid"
 JMXPORT=9010
 LOG4JPROPERTIES=$CONFIGDIR/log4j.properties

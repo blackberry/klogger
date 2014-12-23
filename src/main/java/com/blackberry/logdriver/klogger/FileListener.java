@@ -71,7 +71,7 @@ public class FileListener implements Runnable
 
 			LOG.info("Registered the watch service against the path {}", source.getParentDirectoryPath());
 			
-			FileLogReader logReader = new FileLogReader(conf, source);
+			FileLogReader logReader = new FileLogReader(source);
 			
 			Thread thread = null;
 			
@@ -108,7 +108,7 @@ public class FileListener implements Runnable
 						
 						chill(100L);
 						
-						if (thread.isAlive())
+						if (thread != null && thread.isAlive())
 						{
 							LOG.error("After watching {} file was created but the FileLogReader thread is still running", source.getFile());
 							logReader.setFinished(true);
@@ -146,7 +146,7 @@ public class FileListener implements Runnable
 		}
 		catch(Exception e) 
 		{
-			LOG.error("Error in listening for file {}, error: {}", source.getFile(), e);
+			LOG.error("Error in listening for file {}, error: {}", source.getFile(), e.toString());
 			System.exit(1);
 		} 
 	}

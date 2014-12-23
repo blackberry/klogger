@@ -1,3 +1,7 @@
+Klogger Changs in 0.7.0:
+
+- Added support for listening on files, and FIFO's (named pipes) as well ports
+
 Klogger Changs in 0.6.6:
 
 - Project builds now produce a complete DEB package for deployments

@@ -10,16 +10,33 @@
 
 package com.blackberry.logdriver.klogger;
 
+import java.util.Properties;
+
 public class PortSource extends Source
 {
 	private int port;
+	private  int tcpReceiveBufferBytes = 1048576;
 	
-	public PortSource(String port, String topic, Boolean quickRotate, long quickRotateMessageBlocks)
+	public PortSource(String port, String topic)
 	{
-		super(topic, quickRotate, quickRotateMessageBlocks);		
+		super(topic);		
 		this.port = Integer.parseInt(port);
 	}
 	
+	@Override
+	public Runnable getListener()
+	{
+		return new TcpListener(this);
+	}
+	
+	@Override
+	public void configure(Properties props) throws ConfigurationException, Exception
+	{
+		super.configure(props);
+		
+		tcpReceiveBufferBytes = Integer.parseInt(props.getProperty("tcp.receive.buffer.bytes", Integer.toString(tcpReceiveBufferBytes)));		
+	}
+
 	public int getPort()
 	{
 		return port;
@@ -36,4 +53,46 @@ public class PortSource extends Source
 		return "PortSource: topic=" + this.getTopic() + ", port=" + this.getPort();
 	}
 
+	/**
+	 * @return the tcpReceiveBufferBytes
+	 */
+	public int getTcpReceiveBufferBytes()
+	{
+		return tcpReceiveBufferBytes;
+	}
+
+	/**
+	 * @param tcpReceiveBufferBytes the tcpReceiveBufferBytes to set
+	 */
+	public void setTcpReceiveBufferBytes(int tcpReceiveBufferBytes)
+	{
+		this.tcpReceiveBufferBytes = tcpReceiveBufferBytes;
+	}
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

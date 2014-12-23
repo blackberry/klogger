@@ -6,7 +6,7 @@
 
 	<groupId>com.blackberry.klogger</groupId>
 	<artifactId>klogger</artifactId>
-	<version>0.6.6</version>
+	<version>0.7.0</version>
 
 	<name>klogger-dev</name>
 	<url>http://www.blackberry.com</url>
@@ -16,11 +16,23 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.blackberry.common</groupId>
+			<artifactId>common</artifactId>
+			<version>0.0.4</version>
+		</dependency>
+
+
 		<!-- Kafka dependencies -->
 		<dependency>
 			<groupId>com.blackberry.krackle</groupId>
 			<artifactId>krackle</artifactId>
-			<version>0.7.5</version>
+			<version>0.7.7</version>
 		</dependency>
 
 		<!-- Logging dependencies -->

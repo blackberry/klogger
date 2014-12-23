@@ -10,17 +10,26 @@
 
 package com.blackberry.logdriver.klogger;
 
+import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 abstract class Source
 {
+	private static final Logger LOG = LoggerFactory.getLogger(Source.class);
 	private String topic;
-	private boolean quickRotate;
-	private long quickRotateMessageBlocks;
-
-	Source(String topic, Boolean quickRotate, long quickRotateMessageBlocks)
+	public Configuration conf;
+	
+	public Source(String topic)
 	{
 		this.topic = topic;
-		this.quickRotate = quickRotate;
-		this.quickRotateMessageBlocks = quickRotateMessageBlocks;
+	}
+	
+	public abstract Runnable getListener();
+	
+	public void configure(Properties props) throws ConfigurationException,  Exception
+	{
+		setConf(new Configuration(props, topic));
 	}
 	
 	public String getTopic()
@@ -33,23 +42,20 @@ abstract class Source
 		this.topic = topic;
 	}
 
-	public boolean getQuickRotate()
+	/**
+	 * @return the configuration
+	 */
+	public Configuration getConf()
 	{
-		return quickRotate;
+		return conf;
 	}
 
-	public void setQuickRotate(boolean quickRotate)
+	/**
+	 * @param conf the configuration to set
+	 */
+	public void setConf(Configuration conf)
 	{
-		this.quickRotate = quickRotate;
+		this.conf = conf;
 	}
 
-	public long getQuickRotateMessageBlocks()
-	{
-		return quickRotateMessageBlocks;
-	}
-
-	public void setQuickRotateMessageBlocks(long quickRotateMessageBlocks)
-	{
-		this.quickRotateMessageBlocks = quickRotateMessageBlocks;
-	}
 }

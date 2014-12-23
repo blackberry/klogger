@@ -52,24 +52,19 @@ num.buffers=1000
 # default: the local hostname (warning--this may not hash evenly enough).
 # example: kafka.key=!%*#@%$$^
 
-# sources: a comma separated list of topics klogger will receive messages for.
-# required: yes
 #
-#sources=devtest-test1,devtest-test2,devtest-test3,devtest-test4,devtest-test5,devtest-test6,devtest-test7,devtest-test8,devtest-test9,devtest-test10
-sources=
+#
+#     sources has been deprecated in versions 0.7.0 and later and is now ignored
+#
+#
+# sources: a comma separated list of topics klogger will receive messages for. (DEPRECATED--remove)
 
-# source entries: the following pairs of source.<topic>.port and 
-# source.<topic>.topic entries are a rather clumsy method of specifying 
-# a topic's port.  Regarless...
+# source entries: the following source.<topic>.<port|file> entries are 
+# used to specify topics and whether they are listened to on either a TCP
+# port or a local file
 #
 # source.<topic>.port: the port to listen on for the specified topic
-# source.<topic>.topic: the topic (like I said, clumsy...)
-#
-# Example, for a topic "testingtopic to listen on port 2001:
+# source.<topic>.file: the file to listen on for the specified topic
 #
 # source.testingtopic.port=2001
-# source.testingtopic.topic=testingtopic
-#
-# Rinse/repeat for each topic/port combination.
-source.<topic>.port=
-source.<topic>.topic=<topic>
+# source.testingtopic-debug.topic=/var/log/service.log
