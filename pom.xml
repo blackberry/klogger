@@ -131,8 +131,7 @@
 				</executions>
 				<configuration>
 					<doCheck>true</doCheck>
-					<doUpdate>true</doUpdate>
-					<revisionOnScmFailure>SCM_NA</revisionOnScmFailure>
+					<doUpdate>true</doUpdate>					
 					<format>{0,date,yyyy-MM-dd_HH-mm}_rev{1}</format>
 					<items>
 						<item>timestamp</item>
