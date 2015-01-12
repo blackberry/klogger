@@ -75,6 +75,7 @@
 	</dependencies>
 
 	<build>
+		<!--<finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>-->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -132,18 +133,12 @@
 					<doCheck>true</doCheck>
 					<doUpdate>true</doUpdate>
 					<revisionOnScmFailure>SCM_NA</revisionOnScmFailure>
-					<format>{0,date,yyyy-MM-dd_HH-mm}_{1}_{2}</format>
+					<format>{0,date,yyyy-MM-dd_HH-mm}_rev{1}</format>
 					<items>
 						<item>timestamp</item>
-						<item>${user.name}</item>
 						<item>buildNumber</item>
 					</items>
-				</configuration>				
-				
-				<!--<configuration>
-					<doCheck>true</doCheck>
-					<doUpdate>true</doUpdate>
-				</configuration>-->
+				</configuration>					
 			</plugin>
 			
 			<!-- Build a DEB package -->
@@ -166,8 +161,10 @@
 								<!-- Copy the main artifact jar -->
 								<data>
 									<type>file</type>
-									<src>target/${project.artifactId}-${project.version}.jar</src>
-									<dst>/opt/${project.artifactId}/lib/${project.artifactId}-${project.version}.jar</dst>
+									<!--<src>target/${project.artifactId}-${project.version}.jar</src>
+									<dst>/opt/${project.artifactId}/lib/${project.artifactId}-${project.version}.jar</dst>-->
+									<src>target/${project.build.finalName}.jar</src>
+									<dst>/opt/${project.artifactId}/lib/${project.build.finalName}.jar</dst>
 									<mapper>
 										<type>perm</type>
 										<filemode>644</filemode>
@@ -241,7 +238,23 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>			
+			</plugin>	
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+						<manifestEntries>
+							<Build-Info>${buildNumber}</Build-Info>
+							<SCM-Branch>${scmBranch}</SCM-Branch>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
 			
 		</plugins>
 
