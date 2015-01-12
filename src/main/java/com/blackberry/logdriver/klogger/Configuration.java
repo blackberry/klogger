@@ -125,6 +125,8 @@ public class Configuration extends ProducerConfiguration
 			}			
 		}
 		
+		// Now configure each of the sources
+		
 		for  (Source source : sources)
 		{
 			LOG.info("Configuring {}", source);
