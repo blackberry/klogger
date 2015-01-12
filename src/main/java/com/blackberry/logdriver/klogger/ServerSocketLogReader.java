@@ -160,7 +160,7 @@ public class ServerSocketLogReader implements Runnable
 					if (newline >= 0)
 					{
 						mLinesReceived.mark();
-						mLinesReceivedTotal.mark();
+						mLinesReceivedTotal.mark();//LOG.trace("Newline at {}", newline);
 
 						// LOG.info("Sending (pos {}, len {}):{}", start, newline - start,
 						// new String(buffer, start, newline - start, "UTF-8"));
@@ -222,7 +222,8 @@ public class ServerSocketLogReader implements Runnable
 							{
 								utf8Validator.validate(buffer, 0, maxLine);
 								sendBuffer.put(utf8Validator.getResultBytes(), 0, utf8Validator.getResultBuffer().limit());
-							} else
+							}
+							else
 							{
 								sendBuffer.put(buffer, 0, maxLine);
 							}
@@ -238,31 +239,18 @@ public class ServerSocketLogReader implements Runnable
 						{
 							if (start > 0 && start < limit)
 							{
-								// LOG.info("Shifting {} bytes.", limit - start);
-								// String bufferString = new String(buffer, "UTF-8");
-								// LOG.info("buffer = {}", bufferString);
-
 								int toMove = limit - start;
-								// figure out how much room we have to move at once.
-								int moveSize = start;
-
+								int moveSize;
 								int done = 0;
+								
 								while (done < toMove)
 								{
 									moveSize = Math.min(start - done, limit - start);
 									
-									// LOG.info("    Start={}, done={}, limit={}",start,done,limit);
-									// LOG.info("    Move {} bytes from {} to {}", moveSize, start,
-									// done);
-									
 									System.arraycopy(buffer, start, buffer, done, moveSize);
-									done += moveSize;
-									start += moveSize;
 									
-									// LOG.info("start={}, done={}, moveSize={}", start, done,
-									// moveSize);
-									// bufferString = new String(buffer, UTF8);
-									// LOG.trace("buffer = {}", bufferString);
+									done += moveSize;
+									start += moveSize;									
 								}
 
 								start = toMove;

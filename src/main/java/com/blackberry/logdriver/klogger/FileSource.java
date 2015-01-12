@@ -62,7 +62,7 @@ public class FileSource extends Source
 		super.configure(props);
 		
 		String propPositionPersistLines = this.getConf().getTopicAwarePropName("file.position.persist.lines");
-		String propPositionPersistMs = this.getConf().getTopicAwarePropName("file.position.persist.ms");		
+		String propPositionPersistMs = this.getConf().getTopicAwarePropName("file.position.persist.ms");
 		
 		positionPersistLines = Long.parseLong(props.getProperty(propPositionPersistLines, Long.toString(positionPersistLines)));		
 		positionPersistMs = Long.parseLong(props.getProperty(propPositionPersistMs, Long.toString(positionPersistMs)));		

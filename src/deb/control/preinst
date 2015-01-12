@@ -1,3 +1,5 @@
 #!/bin/sh
 
 rm /opt/klogger/lib/*
+getent group klogger >/dev/null || groupadd -r klogger
+getent passwd klogger >/dev/null || useradd -r -g klogger -m -s /bin/bash -c "User for klogger." klogger

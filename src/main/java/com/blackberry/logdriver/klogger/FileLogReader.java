@@ -195,8 +195,7 @@ public class FileLogReader implements Runnable
 					{
 						if (buffer.get(i) == '\n')
 						{
-							newline = i;
-							//LOG.trace("Newline at {}", newline);
+							newline = i;							
 							break;
 						}
 					}

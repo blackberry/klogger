@@ -10,6 +10,12 @@
 
 	<name>klogger-dev</name>
 	<url>http://www.blackberry.com</url>
+	
+	<scm>
+		<connection>scm:git:git@gitlab.rim.net:ipgbd-software/klogger.git</connection>
+		<developerConnection>scm:git:git@gitlab.rim.net:ipgbd-software/klogger.git</developerConnection>
+		<url>https://gitlab.rim.net/ipgbd-software/klogger</url>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -108,6 +114,36 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.3</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>true</doCheck>
+					<doUpdate>true</doUpdate>
+					<revisionOnScmFailure>SCM_NA</revisionOnScmFailure>
+					<format>{0,date,yyyy-MM-dd_HH-mm}_{1}_{2}</format>
+					<items>
+						<item>timestamp</item>
+						<item>${user.name}</item>
+						<item>buildNumber</item>
+					</items>
+				</configuration>				
+				
+				<!--<configuration>
+					<doCheck>true</doCheck>
+					<doUpdate>true</doUpdate>
+				</configuration>-->
 			</plugin>
 			
 			<!-- Build a DEB package -->
