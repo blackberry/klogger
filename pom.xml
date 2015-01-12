@@ -131,7 +131,8 @@
 				</executions>
 				<configuration>
 					<doCheck>true</doCheck>
-					<doUpdate>true</doUpdate>					
+					<doUpdate>true</doUpdate>		
+					<scmBranchPropertyName>dev</scmBranchPropertyName>			
 					<!--<format>{0,date,yyyy-MM-dd_HH-mm}_rev{1}</format>
 					<items>
 						<item>timestamp</item>
