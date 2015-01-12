@@ -8,7 +8,7 @@
 	<artifactId>klogger</artifactId>
 	<version>0.7.0</version>
 
-	<name>klogger-buildtest</name>
+	<name>klogger-dev</name>
 	<url>http://www.blackberry.com</url>
 	
 	<scm>
@@ -132,11 +132,11 @@
 				<configuration>
 					<doCheck>true</doCheck>
 					<doUpdate>true</doUpdate>					
-					<format>{0,date,yyyy-MM-dd_HH-mm}_rev{1}</format>
+					<!--<format>{0,date,yyyy-MM-dd_HH-mm}_rev{1}</format>
 					<items>
 						<item>timestamp</item>
 						<item>buildNumber</item>
-					</items>
+					</items>-->
 				</configuration>					
 			</plugin>
 			
