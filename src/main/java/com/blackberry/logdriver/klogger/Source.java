@@ -14,7 +14,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class Source
+public abstract class Source
 {
 	private static final Logger LOG = LoggerFactory.getLogger(Source.class);
 	private String topic;
