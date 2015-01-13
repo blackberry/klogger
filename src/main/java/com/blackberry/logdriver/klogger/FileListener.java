@@ -146,7 +146,7 @@ public class FileListener implements Runnable
 		}
 		catch(Exception e) 
 		{
-			LOG.error("Error in listening for file {}, error: {}", source.getFile(), e);
+			LOG.error("Error in listening for file {}, error: {}", source.getFile(), e.getStackTrace());
 			System.exit(1);
 		} 
 	}
