@@ -37,7 +37,6 @@ public class FileLogReader implements Runnable
 	private final int maxLine;
 	private final Producer producer;	
 	private final FileSource source;
-	private long position;
 	private final boolean encodeTimestamp;
 	private final boolean validateUTF8;
 	private final Meter mBytesReceived;
@@ -54,13 +53,7 @@ public class FileLogReader implements Runnable
 	
 	public FileLogReader(FileSource source) throws Exception
 	{
-		this(source, 0);
-	}
-	
-	public FileLogReader(FileSource source, long positon) throws Exception
-	{
-		this.source = source;
-		this.position = positon;
+		this.source = source;		
 				
 		LOG.info("Created new {} for connection {}", this.getClass().getName(), source);
 		
@@ -147,8 +140,8 @@ public class FileLogReader implements Runnable
 			
 			if (bfa.isRegularFile())
 			{
-				LOG.info("Setting intitial positon of regular file {} to {}", source.getFile(), position);
-				channel.position(position);
+				LOG.info("Setting intitial positon of regular file {} to {}", source.getFile(), source.getPosition());
+				channel.position(source.getPosition());
 			}
 			else
 			{
@@ -160,11 +153,11 @@ public class FileLogReader implements Runnable
 				buffer.position(start);
 				bytesRead = channel.read(buffer);
 				
-				if (bfa.isRegularFile() && channel.size() < position)
+				if (bfa.isRegularFile() && channel.size() < source.getPosition())
 				{
-					LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero", source.getFile(), channel.size(), position);
+					LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
 					channel.position(0);
-					position = 0;
+					source.setPosition(0);
 				}								
 
 				if (bytesRead == -1)
@@ -172,18 +165,18 @@ public class FileLogReader implements Runnable
 					continue;
 				}
 
-				//LOG.trace("Read {} bytes", bytesRead);
+				LOG.trace("Read {} bytes", bytesRead);
 				
-				if (bfa.isRegularFile())
-				{
-					//LOG.trace("Position in file is now: {}", channel.position());
-					position = channel.position();
-				}
-				
-				//LOG.trace("Position in buffer is now: {}", buffer.position());
-								
 				mBytesReceived.mark(bytesRead);
 				mBytesReceivedTotal.mark(bytesRead);
+
+				if (bfa.isRegularFile())
+				{
+					LOG.trace("Position in file is now: {}", channel.position());
+					source.setPosition(channel.position());
+				}
+				
+				LOG.trace("Position in buffer is now: {}", buffer.position());								
 
 				limit = start + bytesRead;
 				start = 0;
@@ -192,15 +185,16 @@ public class FileLogReader implements Runnable
 				{
 					newline = -1;					
 					for (int i = start; i < limit; i++)
-					{
-						if (buffer.get(i) == '\n')
+					{						
+						if (bytes[i] == '\n')
 						{
 							newline = i;							
 							break;
 						}
 					}
 					
-					// Found a newline
+					LOG.trace("Newline at {}", newline);
+					
 					if (newline >= 0)
 					{
 						mLinesReceived.mark();
@@ -235,10 +229,11 @@ public class FileLogReader implements Runnable
 						start = newline + 1;
 						continue;
 						
-					} // did not find a newline
+					} 
 					else
 					{
-						//LOG.trace("No newline.  start={}, limit={}", start, limit);
+						LOG.trace("No newline.  start={}, limit={}", start, limit);
+						
 						// if the buffer is full, send it all. Otherwise, do nothing.
 						
 						if (start == 0 && limit == maxLine)
@@ -300,12 +295,13 @@ public class FileLogReader implements Runnable
 							{
 								if (start >= limit)
 								{
-									//LOG.info("All the data has been read");
+									LOG.trace("All the data has been read");
 									start = 0;
 									break;
 								} 
 								else
 								{
+									// start == 0, so move it to the limit for the next pass.
 									start = limit;
 									break;
 								}
@@ -326,13 +322,4 @@ public class FileLogReader implements Runnable
 		LOG.info("And we're done here: {}", source.getFile());
 	}
 
-	public long getPostion() 
-	{
-		return this.position;		
-	}
-	
-	public void setPostion(long positon) 
-	{
-		this.position = positon;		
-	}
 }

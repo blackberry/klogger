@@ -25,7 +25,8 @@ public class FileSource extends Source
 	private static final Logger LOG = LoggerFactory.getLogger(FileSource.class);
 	private File file;
 	private long positionPersistMs = 1000;
-	private long positionPersistLines = 1000;	
+	private long positionPersistLines = 1000;
+	public long position;
 	
 	public FileSource(String path, String topic)
 	{
@@ -114,6 +115,22 @@ public class FileSource extends Source
 	public void setPositionPersistLines(long positionPersistLines)
 	{
 		this.positionPersistLines = positionPersistLines;
+	}
+
+	/**
+	 * @return the position
+	 */
+	public long getPosition()
+	{
+		return position;
+	}
+
+	/**
+	 * @param position the position to set
+	 */
+	public void setPosition(long position)
+	{
+		this.position = position;
 	}
 	
 }

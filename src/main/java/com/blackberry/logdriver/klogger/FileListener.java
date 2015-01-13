@@ -106,17 +106,17 @@ public class FileListener implements Runnable
 						
 						LOG.info("The path that we're watching has been created: {}", path);						
 						
-						chill(100L);
+						chill(100);
 						
 						if (thread != null && thread.isAlive())
 						{
 							LOG.error("After watching {} file was created but the FileLogReader thread is still running", source.getFile());
 							logReader.setFinished(true);
 							while(thread.isAlive()) { }							
-							chill(100L);
+							chill(100);
 						}						
 						
-						logReader.setPostion(0L);
+						source.setPosition(0);
 						thread = startNewThread(logReader);
 						
 						LOG.info("File {} was created and the LogReaderThread has been started", source.getFile());

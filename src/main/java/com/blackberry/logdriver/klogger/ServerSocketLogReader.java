@@ -85,13 +85,11 @@ public class ServerSocketLogReader implements Runnable
 			utf8Validator = new UTF8Validator();
 		}
 
-		byte[] buffer = new byte[maxLine];
+		byte[] bytes = new byte[maxLine];
 
-		// Calculate send buffer size.
-		// If we're validating UTF-8, then theoretically, each byte could be
-		// replaced by the three byte replacement character. So the send buffer
-		// needs to be triple the max line length.
-		// If we're encoding the timestamp, then that adds 10 bytes.
+		// Calculate send buffer size. If we're validating UTF-8, then theoretically, each byte could be
+		// replaced by the three byte replacement character. So the send buffer needs to be triple 
+		// the max line length.  If we're encoding the timestamp, then that adds 10 bytes.
 		
 		byte[] sendBytes;
 		{
@@ -112,24 +110,24 @@ public class ServerSocketLogReader implements Runnable
 		ByteBuffer sendBuffer = ByteBuffer.wrap(sendBytes);
 
 		int start = 0;
-		int limit = 0;
-		int newline = 0;
-		int bytesRead = 0;
+		int limit;
+		int newline;
+		int bytesRead;
 
 		try
 		{
 			InputStream in = socket.getInputStream();
 
 			while (true)
-			{
-				// Try to fill the buffer
-				bytesRead = in.read(buffer, start, maxLine - start);
+			{				
+				bytesRead = in.read(bytes, start, maxLine - start);
 				
-				// LOG.trace("Read {} bytes", bytesRead);
 				if (bytesRead == -1)
 				{
 					break;
 				}
+				
+				LOG.trace("Read {} bytes", bytesRead);
 				
 				mBytesReceived.mark(bytesRead);
 				mBytesReceivedTotal.mark(bytesRead);
@@ -137,33 +135,27 @@ public class ServerSocketLogReader implements Runnable
 				limit = start + bytesRead;
 				start = 0;
 
-				// String bufferString = new String(buffer, 0, limit, "UTF-8");
-				// LOG.info("buffer = {}", bufferString);
-				// LOG.trace("start={}, limit={}", start, limit);
-				// Find newlines
-				
 				while (true)
 				{
 					newline = -1;
 					for (int i = start; i < limit; i++)
 					{
-						if (buffer[i] == '\n')
+						if (bytes[i] == '\n')
 						{
 							newline = i;
 							break;
 						}
 					}
 					
-					// LOG.trace("Newline at {}", newline);
-
-					// Found a newline
+					LOG.trace("Newline at {}", newline);
+					
 					if (newline >= 0)
 					{
 						mLinesReceived.mark();
-						mLinesReceivedTotal.mark();//LOG.trace("Newline at {}", newline);
+						mLinesReceivedTotal.mark();
+						
+						LOG.trace("Sending (pos {}, len {}):{}", start, newline - start, new String(bytes, start, newline - start, "UTF-8"));
 
-						// LOG.info("Sending (pos {}, len {}):{}", start, newline - start,
-						// new String(buffer, start, newline - start, "UTF-8"));
 						sendBuffer.clear();
 
 						if (encodeTimestamp)
@@ -178,12 +170,12 @@ public class ServerSocketLogReader implements Runnable
 
 						if (validateUTF8)
 						{
-							utf8Validator.validate(buffer, start, newline - start);
+							utf8Validator.validate(bytes, start, newline - start);
 							sendBuffer.put(utf8Validator.getResultBytes(), 0, utf8Validator.getResultBuffer().limit());
 						} 
 						else
 						{
-							sendBuffer.put(buffer, start, newline - start);
+							sendBuffer.put(bytes, start, newline - start);
 						}
 
 						producer.send(sendBytes, 0, sendBuffer.position());
@@ -191,21 +183,19 @@ public class ServerSocketLogReader implements Runnable
 						start = newline + 1;
 						continue;
 						
-					} // did not find a newline
+					} 
 					else
 					{
-						// LOG.info("No newline.  start={}, limit={}", start, limit);
-						// if the buffer is full, send it all. Otherwise, do
-						// nothing.
+						LOG.trace("No newline.  start={}, limit={}", start, limit);
+						
+						// if the buffer is full, send it all. Otherwise, do nothing.
 						
 						if (start == 0 && limit == maxLine)
 						{
 							mLinesReceived.mark();
 							mLinesReceivedTotal.mark();
 
-							// LOG.info("Sending line with no newline");
-							// LOG.info("Sending:{}", new String(buffer, 0, maxLine,
-							// "UTF-8"));
+							LOG.trace("Sending log with no new-line:{}", new String(bytes, 0, maxLine, "UTF-8"));							
 							
 							sendBuffer.clear();
 
@@ -220,18 +210,17 @@ public class ServerSocketLogReader implements Runnable
 
 							if (validateUTF8)
 							{
-								utf8Validator.validate(buffer, 0, maxLine);
+								utf8Validator.validate(bytes, 0, maxLine);
 								sendBuffer.put(utf8Validator.getResultBytes(), 0, utf8Validator.getResultBuffer().limit());
 							}
 							else
 							{
-								sendBuffer.put(buffer, 0, maxLine);
+								sendBuffer.put(bytes, 0, maxLine);
 							}
 
 							producer.send(sendBytes, 0, sendBuffer.position());
 
 							start = 0;
-							limit = 0;
 							break;
 							
 						} // if there is still data, then shift it to the start
@@ -247,24 +236,21 @@ public class ServerSocketLogReader implements Runnable
 								{
 									moveSize = Math.min(start - done, limit - start);
 									
-									System.arraycopy(buffer, start, buffer, done, moveSize);
+									System.arraycopy(bytes, start, bytes, done, moveSize);
 									
 									done += moveSize;
 									start += moveSize;									
 								}
 
-								start = toMove;
-								limit = toMove;
+								start = toMove;								
 								break;
-								
-							} // We used all the data
+							} 
 							else
 							{
 								if (start >= limit)
 								{
-									// LOG.info("All data was used.");
+									LOG.trace("All the data has been read");
 									start = 0;
-									limit = 0;
 									break;
 								} 
 								else

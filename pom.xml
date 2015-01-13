@@ -133,11 +133,6 @@
 					<doCheck>true</doCheck>
 					<doUpdate>true</doUpdate>		
 					<scmBranchPropertyName>dev</scmBranchPropertyName>			
-					<!--<format>{0,date,yyyy-MM-dd_HH-mm}_rev{1}</format>
-					<items>
-						<item>timestamp</item>
-						<item>buildNumber</item>
-					</items>-->
 				</configuration>					
 			</plugin>
 			
@@ -161,8 +156,6 @@
 								<!-- Copy the main artifact jar -->
 								<data>
 									<type>file</type>
-									<!--<src>target/${project.artifactId}-${project.version}.jar</src>
-									<dst>/opt/${project.artifactId}/lib/${project.artifactId}-${project.version}.jar</dst>-->
 									<src>target/${project.build.finalName}.jar</src>
 									<dst>/opt/${project.artifactId}/lib/${project.build.finalName}.jar</dst>
 									<mapper>
@@ -197,7 +190,7 @@
 									</paths>
 									<mapper>
 										<type>perm</type>
-										<filemode>644</filemode>
+										<filemode>755</filemode>
 										<user>klogger</user>
 										<group>klogger</group>
 									</mapper>
@@ -214,17 +207,6 @@
 									</paths>
 									<dst>/opt/${project.artifactId}/config</dst>
 								</data>
-								
-								<!-- Define the to-be user created configuration files
-								<data>
-									<type>files</type>
-									<conffile>true</conffile>
-									<paths>
-										<path>/opt/${project.artifactId}/config/${project.artifactId}.properties</path>
-										<path>/opt/${project.artifactId}/config/${project.artifactId}-env.sh</path>
-										<path>/opt/${project.artifactId}/config/log4j.properties</path>
-									</paths>
-								</data>-->
 								
 								<!-- Copy the init upstart script -->
 								<data>
