@@ -192,9 +192,16 @@
 									<type>template</type>
 									<paths>
 										<path>/opt/${project.artifactId}/config</path>
-										<path>/opt/${project.artifactId}/log</path>
+										<path>/var/log/${project.artifactId}</path>
 										<path>/var/run/${project.artifactId}</path>
 									</paths>
+									<mapper>
+										<type>perm</type>
+										<filemode>644</filemode>
+										<user>klogger</user>
+										<group>klogger</group>
+									</mapper>
+
 								</data>
 								
 								<!-- Copy the config sample(s) -->
