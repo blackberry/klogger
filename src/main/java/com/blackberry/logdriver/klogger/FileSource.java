@@ -26,7 +26,8 @@ public class FileSource extends Source
 	private File file;
 	private long positionPersistMs = 1000;
 	private long positionPersistLines = 1000;
-	public long position;
+	private long position;
+	public String positonPersistCacheDir = "/opt/klogger/file_positions_cache";
 	
 	public FileSource(String path, String topic)
 	{
@@ -67,7 +68,8 @@ public class FileSource extends Source
 		String propPositionPersistMs = this.getConf().getTopicAwarePropName("file.position.persist.ms");
 		
 		positionPersistLines = Long.parseLong(props.getProperty(propPositionPersistLines, Long.toString(positionPersistLines)));		
-		positionPersistMs = Long.parseLong(props.getProperty(propPositionPersistMs, Long.toString(positionPersistMs)));		
+		positionPersistMs = Long.parseLong(props.getProperty(propPositionPersistMs, Long.toString(positionPersistMs)));
+		positonPersistCacheDir = props.getProperty("file.positions.persist.cache.dir", positonPersistCacheDir);
 	}
 	
 	public File getFile()
@@ -132,6 +134,22 @@ public class FileSource extends Source
 	public void setPosition(long position)
 	{
 		this.position = position;
+	}
+
+	/**
+	 * @return the positonPersistCacheDir
+	 */
+	public String getPositonPersistCacheDir()
+	{
+		return positonPersistCacheDir;
+	}
+
+	/**
+	 * @param positonPersistCacheDir the positonPersistCacheDir to set
+	 */
+	public void setPositonPersistCacheDir(String positonPersistCacheDir)
+	{
+		this.positonPersistCacheDir = positonPersistCacheDir;
 	}
 	
 }

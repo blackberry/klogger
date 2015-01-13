@@ -27,9 +27,8 @@ public abstract class LogReader implements Runnable
 	private static final Object producersLock = new Object();
 	private static final Map<String, Producer> producers = new HashMap<>();
 	
-	private Boolean finished = false;
+	private Boolean finished = false;	
 	
-	private final int maxLine;	
 	private final Producer producer;		
 	private final boolean encodeTimestamp;
 	private final boolean validateUTF8;
@@ -38,6 +37,7 @@ public abstract class LogReader implements Runnable
 	private final Meter mLinesReceived;
 	private final Meter mLinesReceivedTotal;
 	
+	protected final int maxLine;	
 	protected int start = 0;
 	protected int limit;
 	protected int newline;

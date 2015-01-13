@@ -41,7 +41,7 @@ public class ServerSocketLogReader extends LogReader
 	@Override
 	protected int readSource() throws Exception
 	{
-		int bytesRead = in.read(bytes, start, maxLine - start);
+		bytesRead = in.read(bytes, start, maxLine - start);
 		
 		return bytesRead;
 	}
@@ -52,13 +52,12 @@ public class ServerSocketLogReader extends LogReader
 		try
 		{
 			socket.close();
-			// Producers never close. The number of producers is fairly small, so this shouldn't be an issue.
-			// We may need to fix that at some point. 
+			// Producers never close. The number of producers is fairly small, so this shouldn't be an issue.  We may need to fix that at some point. 
 			// producer.close();
 		} 
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			LOG.error("Error trying to close socket: ", e);
 		}
 	}
 }

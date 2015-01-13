@@ -11,11 +11,13 @@
 package com.blackberry.logdriver.klogger;
 
 
+import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import java.nio.ByteBuffer;
@@ -76,7 +78,7 @@ public class FileLogReader extends  LogReader
 	{
 		buffer.position(start);
 		
-		int bytesRead = channel.read(buffer);
+		bytesRead = channel.read(buffer);
 
 		if (bfa.isRegularFile() && channel.size() < source.getPosition())
 		{
@@ -88,7 +90,7 @@ public class FileLogReader extends  LogReader
 		}
 		
 		if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
-			 || totalLinesRead >= persistLinesCounter)
+			 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
 		{
 			persistPosition();
 		}
@@ -111,5 +113,24 @@ public class FileLogReader extends  LogReader
 	protected void finished()
 	{
 		LOG.info("Finished reading source {}", source);
+	}
+	
+	private void persistPosition()
+	{
+		File persistFile = new File(source.getPositonPersistCacheDir() + "/" + source.getFile().toString().replaceAll("/", "_"));
+		
+		try 
+		{			
+			FileWriter writer = new FileWriter(persistFile, false);		
+			writer.write(String.valueOf(source.getPosition()));
+			writer.close();
+			LOG.error("Write position {} to file {} for source {}", source.getPosition(), persistFile, source);
+		}
+		catch(IOException ioe)
+		{
+			LOG.error("Unable to write position {} to file {} for source {}, error: ", source.getPosition(), persistFile, source, ioe);
+			
+		}
+		
 	}
 }
