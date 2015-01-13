@@ -77,13 +77,16 @@ public class FileLogReader extends  LogReader
 			source.setPosition(0);
 		}								
 
-		if (bfa.isRegularFile())
+		if (bytesRead != -1)
 		{
-			LOG.trace("Position in file is now: {}", channel.position());
-			source.setPosition(channel.position());
-		}
-
-		LOG.trace("Position in buffer is now: {}", buffer.position());										
+			LOG.trace("Position in buffer is now: {}", buffer.position());										
+			
+			if (bfa.isRegularFile())
+			{
+				LOG.trace("Position in file is now: {}", channel.position());
+				source.setPosition(channel.position());
+			}
+		}			
 		
 		return bytesRead;
 	}
