@@ -30,7 +30,7 @@ public class FileLogReader extends  LogReader
 	private static final Logger LOG = LoggerFactory.getLogger(ServerSocketLogReader.class);
 	private final FileSource source;	
 	private FileInputStream in;
-	private FileChannel channel = in.getChannel();	
+	private FileChannel channel;
 	private BasicFileAttributes bfa;	
 	private final ByteBuffer buffer;
 
