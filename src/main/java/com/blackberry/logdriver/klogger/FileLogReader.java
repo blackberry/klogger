@@ -24,6 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 public class FileLogReader extends  LogReader
 {
@@ -33,6 +35,9 @@ public class FileLogReader extends  LogReader
 	private FileChannel channel;
 	private BasicFileAttributes bfa;	
 	private final ByteBuffer buffer;
+	private Calendar cal;
+	private long persistLinesCounter = 0;
+	private long persisMsTimestamp = 0;
 
 	public FileLogReader(FileSource source) throws Exception
 	{		
@@ -48,7 +53,7 @@ public class FileLogReader extends  LogReader
 	{
 		LOG.info("Instantiating InputStream for {}", source.getFile());
 
-		in = new FileInputStream(source.getFile());			
+		in = new FileInputStream(source.getFile());
 		channel = in.getChannel();
 		Path p = Paths.get(source.getFile().toURI());
 		bfa = Files.readAttributes(p, BasicFileAttributes.class);
@@ -57,6 +62,8 @@ public class FileLogReader extends  LogReader
 		{
 			LOG.info("Setting intitial positon of regular file {} to {}", source.getFile(), source.getPosition());
 			channel.position(source.getPosition());
+			cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+			persisMsTimestamp = cal.getTimeInMillis();
 		}
 		else
 		{
@@ -68,6 +75,7 @@ public class FileLogReader extends  LogReader
 	protected int readSource() throws IOException
 	{
 		buffer.position(start);
+		
 		int bytesRead = channel.read(buffer);
 
 		if (bfa.isRegularFile() && channel.size() < source.getPosition())
@@ -75,8 +83,16 @@ public class FileLogReader extends  LogReader
 			LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
 			channel.position(0);
 			source.setPosition(0);
-		}								
-
+			persistPosition();
+			
+		}
+		
+		if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
+			 || totalLinesRead >= persistLinesCounter)
+		{
+			persistPosition();
+		}
+		
 		if (bytesRead != -1)
 		{
 			LOG.trace("Position in buffer is now: {}", buffer.position());										

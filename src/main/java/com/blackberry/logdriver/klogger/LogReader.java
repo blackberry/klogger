@@ -26,7 +26,10 @@ public abstract class LogReader implements Runnable
 	private static final Logger LOG = LoggerFactory.getLogger(ServerSocketLogReader.class);
 	private static final Object producersLock = new Object();
 	private static final Map<String, Producer> producers = new HashMap<>();
-	protected  final int maxLine;
+	
+	private Boolean finished = false;
+	
+	private final int maxLine;	
 	private final Producer producer;		
 	private final boolean encodeTimestamp;
 	private final boolean validateUTF8;
@@ -38,13 +41,12 @@ public abstract class LogReader implements Runnable
 	protected int start = 0;
 	protected int limit;
 	protected int newline;
-	//protected int bytesRead;
-	
-	protected byte[] bytes;
-	
+	protected int bytesRead;	
+	protected long totalLinesRead = 0;	
+	protected byte[] bytes;	
 	protected Configuration conf;
 	
-	private Boolean finished = false;
+	
 	
 	public void setFinished(Boolean state) 
 	{
@@ -132,7 +134,7 @@ public abstract class LogReader implements Runnable
 			
 			while (!finished)
 			{
-				int bytesRead = readSource();				
+				bytesRead = readSource();				
 
 				if (bytesRead == -1)
 				{
@@ -144,17 +146,18 @@ public abstract class LogReader implements Runnable
 				mBytesReceived.mark(bytesRead);
 				mBytesReceivedTotal.mark(bytesRead);
 
-
 				limit = start + bytesRead;
 				start = 0;
 
 				while (true)
 				{
-					newline = -1;					
+					newline = -1;
+					
 					for (int i = start; i < limit; i++)
 					{						
 						if (bytes[i] == '\n')
 						{
+							totalLinesRead++;
 							newline = i;							
 							break;
 						}
