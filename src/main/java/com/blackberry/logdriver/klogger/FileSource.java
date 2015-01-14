@@ -27,7 +27,7 @@ public class FileSource extends Source
 	private long positionPersistMs = 1000;
 	private long positionPersistLines = 1000;
 	private long position;
-	public String positonPersistCacheDir = "/opt/klogger/file_positions_cache";
+	private String positonPersistCacheDir = "/opt/klogger/file_positions_cache";
 	
 	public FileSource(String path, String topic)
 	{
