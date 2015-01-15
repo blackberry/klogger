@@ -4,11 +4,11 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.blackberry.klogger</groupId>
+	<groupId>com.blackberry.bdp.klogger</groupId>
 	<artifactId>klogger</artifactId>
 	<version>0.7.0</version>
 
-	<name>klogger-dev</name>
+	<name>klogger</name>
 	<url>http://www.blackberry.com</url>
 	
 	<scm>
@@ -36,7 +36,7 @@
 
 		<!-- Kafka dependencies -->
 		<dependency>
-			<groupId>com.blackberry.krackle</groupId>
+			<groupId>com.blackberry.bdp.krackle</groupId>
 			<artifactId>krackle</artifactId>
 			<version>0.7.7</version>
 		</dependency>
@@ -72,6 +72,12 @@
 			<version>0.0.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 
 	<build>		
