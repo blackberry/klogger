@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.blackberry.logdriver.klogger;
+package com.blackberry.bdp.klogger;
 
 /**
  *

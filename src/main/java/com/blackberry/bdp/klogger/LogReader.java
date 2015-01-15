@@ -8,7 +8,7 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.blackberry.logdriver.klogger;
+package com.blackberry.bdp.klogger;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -17,8 +17,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.blackberry.krackle.MetricRegistrySingleton;
-import com.blackberry.krackle.producer.Producer;
+import com.blackberry.bdp.krackle.MetricRegistrySingleton;
+import com.blackberry.bdp.krackle.producer.Producer;
 import com.codahale.metrics.Meter;
 
 public abstract class LogReader implements Runnable

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.blackberry.logdriver.klogger;
+package com.blackberry.bdp.klogger;
 
+import com.blackberry.bdp.klogger.KLogger;
 import java.io.OutputStream;
 import java.net.Socket;
 
@@ -23,8 +24,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.blackberry.logdriver.test.util.LocalKafkaServer;
-import com.blackberry.logdriver.test.util.LocalZkServer;
+import com.blackberry.bdp.test.utils.LocalKafkaServer;
+import com.blackberry.bdp.test.utils.LocalZkServer;
 
 public class KLoggerTest {
 

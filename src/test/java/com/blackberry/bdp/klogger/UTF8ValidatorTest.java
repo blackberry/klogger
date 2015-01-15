@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.blackberry.logdriver.klogger;
+package com.blackberry.bdp.klogger;
 
+import com.blackberry.bdp.klogger.UTF8Validator;
 import static org.junit.Assert.assertTrue;
 
 import java.io.UnsupportedEncodingException;
