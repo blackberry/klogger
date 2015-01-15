@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.blackberry.common.props.Parser;
+import com.blackberry.bdp.common.utils.props.Parser;
 import com.blackberry.krackle.producer.ProducerConfiguration;
 
 
