@@ -224,6 +224,7 @@
 				<!-- When to build -->
 				<executions>
 					<execution>
+						<phase>install</phase>
 						<goals>
 							<goal>rpm</goal>
 						</goals>
