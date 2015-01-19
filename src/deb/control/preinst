@@ -1,5 +1,18 @@
 #!/bin/sh
 
+# Remove any libraries from previous versions
+
+if [[ "x$klogger_uid" == "x" ]]
+then
+	getent group klogger >/dev/null || groupadd -r klogger 
+	getent passwd klogger >/dev/null || useradd -r -g klogger -m -s /bin/bash -c "User for klogger." klogger
+else
+	getent group klogger >/dev/null || groupadd -g $klogger_uid -r klogger
+	getent passwd klogger >/dev/null || useradd -u $klogger_uid -r -g klogger -m -s /bin/bash -c "User for klogger." klogger
+fi
+
 rm /opt/klogger/lib/*
-getent group klogger >/dev/null || groupadd -r klogger
-getent passwd klogger >/dev/null || useradd -r -g klogger -m -s /bin/bash -c "User for klogger." klogger
+
+chown -R klogger.klogger /var/log/klogger
+chown -R klogger.klogger /var/run/klogger
+chown -R klogger.klogger /opt/klogger/config

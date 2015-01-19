@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.blackberry.bdp.klogger</groupId>
-	<artifactId>klogger</artifactId>
+	<artifactId>klogger-dev</artifactId>
 	<version>0.7.0</version>
 
 	<name>klogger-dev</name>
@@ -37,7 +37,7 @@
 		<!-- Kafka dependencies -->
 		<dependency>
 			<groupId>com.blackberry.bdp.krackle</groupId>
-			<artifactId>krackle</artifactId>
+			<artifactId>krackle-dev</artifactId>
 			<version>0.7.7</version>
 		</dependency>
 
@@ -122,24 +122,6 @@
 				</executions>
 			</plugin>
 			
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.3</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<doCheck>true</doCheck>
-					<doUpdate>false</doUpdate>							
-				</configuration>					
-			</plugin>
-			
 			<!-- Build a DEB package -->
 			<plugin>
 				<artifactId>jdeb</artifactId>
@@ -161,7 +143,7 @@
 								<data>
 									<type>file</type>
 									<src>target/${project.build.finalName}.jar</src>
-									<dst>/opt/${project.artifactId}/lib/${project.build.finalName}.jar</dst>
+									<dst>/opt/klogger/lib/${project.build.finalName}.jar</dst>
 									<mapper>
 										<type>perm</type>
 										<filemode>644</filemode>
@@ -177,7 +159,7 @@
 									<includes>*.jar</includes>
 									<mapper>
 										<type>perm</type>
-										<prefix>/opt/${project.artifactId}/lib</prefix>
+										<prefix>/opt/klogger/lib</prefix>
 										<filemode>644</filemode>
 										<user>root</user>
 										<group>root</group>
@@ -188,9 +170,9 @@
 								<data>
 									<type>template</type>
 									<paths>
-										<path>/opt/${project.artifactId}/config</path>
-										<path>/var/log/${project.artifactId}</path>
-										<path>/var/run/${project.artifactId}</path>
+										<path>/opt/klogger/config</path>
+										<path>/var/log/klogger</path>
+										<path>/var/run/klogger</path>
 									</paths>
 									<mapper>
 										<type>perm</type>
@@ -205,17 +187,17 @@
 								<data>
 									<type>files</type>
 									<paths>
-										<path>${project.basedir}/conf/${project.artifactId}.properties.sample</path>
-										<path>${project.basedir}/conf/${project.artifactId}-env.sh.sample</path>
+										<path>${project.basedir}/conf/klogger.properties.sample</path>
+										<path>${project.basedir}/conf/klogger-env.sh.sample</path>
 										<path>${project.basedir}/conf/log4j.properties.sample</path>
 									</paths>
-									<dst>/opt/${project.artifactId}/config</dst>
+									<dst>/opt/klogger/config</dst>
 								</data>
 								
 								<!-- Copy the init upstart script -->
 								<data>
 									<src>${project.basedir}/init/klogger.conf</src>
-									<dst>/etc/init/${project.artifactId}.conf</dst>
+									<dst>/etc/init/klogger.conf</dst>
 									<type>file</type>
 								</data>
 								
@@ -232,6 +214,27 @@
 					</execution>
 				</executions>
 			</plugin>	
+			
+			<!-- Generate a build number -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.3</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>true</doCheck>
+					<doUpdate>false</doUpdate>							
+				</configuration>					
+			</plugin>
+			
+			<!-- embed the build number in JAR -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
