@@ -1,3 +1,7 @@
+Klogger changes in 0.7.2:
+
+- Builds RPM package in addition to deb package
+
 Klogger changes in 0.7.1:
 
 - Custom UID support in deb package's preinst script via exported klogger_uid env variable
