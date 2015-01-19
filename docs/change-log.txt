@@ -1,6 +1,8 @@
 Klogger changes in 0.7.2:
 
 - Builds RPM package in addition to deb package
+- Checks for directories to exist before setting recursive permissions in the preinst script
+- Links the RPM's preinstallScriptlet to the deb's preinst
 
 Klogger changes in 0.7.1:
 
