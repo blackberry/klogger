@@ -14,12 +14,17 @@ fi
 if [[ -e "/opt/klogger/lib" ]]
 then
 	rm /opt/klogger/lib/*
-	chown -R klogger.klogger /var/log/klogger
+	chown -R klogger.klogger /opt/klogger/lib
 fi
 
 if [[ -e "/var/run/klogger" ]]
 then
 	chown -R klogger.klogger /var/run/klogger
+fi 
+
+if [[ -e "/var/log/klogger" ]]
+then
+	chown -R klogger.klogger /var/log/klogger
 fi 
 
 if [[ -e "/opt/klogger/config" ]]
