@@ -1,10 +1,32 @@
-Klogger Changs in 0.7.0:
+Klogger changes in 0.7.2:
 
-- Added support for listening on files, and FIFO's (named pipes) as well ports
+- Minor changes to pre-install script to better handle directory permissions
 
-Klogger Changs in 0.6.6:
+Klogger changes in 0.7.2:
 
-- Project builds now produce a complete DEB package for deployments
+- Builds RPM package in addition to deb package
+- Checks for directories to exist before setting recursive permissions in the preinst script
+- Links the RPM's preinstallScriptlet to the deb's preinst
+
+Klogger changes in 0.7.1:
+
+- Custom UID support in deb package's preinst script via exported klogger_uid env variable
+- Ownership is now set recursively for required paths during deb package's preinst script
+- Upstart script now recognizes new package name space (com.blackberry.bdp.klogger)
+- Updates to the POM file's jdeb block to not use the artifactId in paths (since branches would break the package)
+- Finished refactoring out sources to be fully abstracted.  
+- New  FileLogReader and the ServerSocketLogReader.  
+- All the rather complex logic for parsing lines, encoding, and producing to Kafka topics are encapsulated in the abstract LogReader.
+- With re-written Krackle producer configuration every property can be overwritten and made source/topic specific.
+- To add a new source you just need to extend the abstract Source class and implement the method that returns a listener thread.  That listener thread can either extend the log reader directly or be the thing that waits to instantiate a log reader (like what we have to do for log files that might not exist yet).  Then, the log reader just has to implement the abstract prepareSource(), readSource(), and finished() methods.  Should be really easy if we ever want to add another source type moving forward.
+
+Klogger changs in 0.7.0:
+
+- Added support for listening on files, and FIFO's (named pipes) as well ports (experimental)
+
+Klogger changs in 0.6.6:
+
+- Project builds now produce a complete deb package for deployments
 - Added REAME
 - Added sample configuratons
 - Added init scripts
