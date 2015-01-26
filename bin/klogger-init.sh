@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#  /etc/rc.d/init.d/kaboom
+#  /etc/init.d/klogger
 #
-# Starts the kaboom daemon
+# Starts the klogger daemon
 #
 # chkconfig: - 95 5
 # description: Collects logs, and writes them to Kafka.
@@ -46,8 +46,7 @@ setup() {
 start() {
   setup
 
-  # Check if kaboom is already running
-  PIDFILE="$PIDBASE/klogger.pid"
+  # Check if klogger is already running
   if [ -f $PIDFILE ]
   then
     PID=`head -1 $PIDFILE`
@@ -61,15 +60,9 @@ start() {
   fi
 
   echo -n $"Starting $PROG: "
-  # kdestroy first to ensure that we're not logged in as anyone else.
-  # Shouldn't be, if this is a dedicated user.
-  # Also, ignore the message we get when the credentials cache is empty.
-  
-  /usr/bin/kdestroy 2>&1 | grep -v 'kdestroy: No credentials cache found while destroying cache'
-  
   . $CONFIGDIR/klogger-env.sh
 
-  nohup $JAVA $JAVA_OPTS -cp $CLASSPATH com.blackberry.bdp.klogger.KLogger >$LOGDIR/server.out
+  nohup $JAVA $JAVA_OPTS -cp $CLASSPATH com.blackberry.bdp.klogger.KLogger >$LOGDIR/server.out &
 
   RETVAL=$?
   PID=$!
@@ -90,7 +83,6 @@ stop() {
   setup
 
   echo -n $"Stopping $PROG: "
-  PIDFILE="$PIDBASE/klogger.pid"
 
   if [ -f $PIDFILE ]
   then
@@ -171,8 +163,6 @@ restart() {
 
 _status() {
   setup
-
-  PIDFILE="$PIDBASE/klogger.pid"
   status -p $PIDFILE $PROG
 }
 
@@ -189,7 +179,6 @@ start)
   if [ "x$KLOGGER_USER" != "x" ]
   then
     su $KLOGGER_USER -c start
-    service epagent restart
   else
     start
   fi
@@ -206,7 +195,6 @@ restart)
   if [ "x$KLOGGER_USER" != "x" ]
   then
     su $KLOGGER_USER -c restart
-    service epagent restart
   else
     restart
   fi
