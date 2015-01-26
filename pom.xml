@@ -246,7 +246,7 @@
 						<!-- Artifact JAR -->
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
-							<filemode>644</filemode>
+							<filemode>755</filemode>
 							<username>klogger</username>
 							<groupname>klogger</groupname>
 							<artifact></artifact>
@@ -256,7 +256,7 @@
 						<!-- Libraries -->
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
-							<filemode>644</filemode>
+							<filemode>755</filemode>
 							<username>klogger</username>
 							<groupname>klogger</groupname>
 							<sources>
@@ -272,7 +272,7 @@
 						<!-- Config -->
 						<mapping>
 							<directory>/opt/klogger/config</directory>
-							<filemode>644</filemode>
+							<filemode>755</filemode>
 							<username>klogger</username>
 							<groupname>klogger</groupname>
 							<sources>
@@ -289,7 +289,7 @@
 						<!-- Executables -->
 						<mapping>
 							<directory>/opt/klogger/bin</directory>
-							<filemode>744</filemode>
+							<filemode>755</filemode>
 							<username>klogger</username>
 							<groupname>klogger</groupname>
 							<sources>
