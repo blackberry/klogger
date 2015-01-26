@@ -1,3 +1,12 @@
+Klogger changes in 0.7.5
+
+- Defaults user 'klogger' in config/klogger-env.sh
+- Reduces heap size to 2GB (from 5GB)' in config/klogger-env.sh
+
+Klogger changes in 0.7.3:
+
+- More minor changes to packaging
+
 Klogger changes in 0.7.2:
 
 - Minor changes to pre-install script to better handle directory permissions
