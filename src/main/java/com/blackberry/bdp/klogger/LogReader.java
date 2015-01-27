@@ -138,6 +138,8 @@ public abstract class LogReader implements Runnable
 
 				if (bytesRead == -1)
 				{
+					LOG.warn("Received -1 while reading from source, finishing up...");
+					finished = true;
 					continue;
 				}
 
