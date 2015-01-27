@@ -30,9 +30,50 @@ import com.blackberry.bdp.krackle.producer.ProducerConfiguration;
  * Class for configuring KLogger.
  *
  * It extends ProducerConfiguration from Krackle, so any property that is valid there is also valid here.
+ * 
+ * <p><b>NOTE:</b> These configuration properties can not be overwritten to be topic specific they are global for all sources</p>
+ * 
+ * Valid properties are:
+ * <br />
+ * <table border="1">
  *
- * Previously existing HTML Javadoc describing the additional properties has been removed.  Will be added back in
- * after a review of the delta between these and the default Krackle properties
+ * <tr>
+ * <th>property</th>
+ * <th>default</th>
+ * <th>description</th>
+ * </tr>
+ *
+ * <tr>
+ * <td>client.id</td>
+ * <td>InetAddress.getLocalHost().getHostName()</td>
+ * <td>The client ID to send with requests to the broker</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>kafka.key</td>
+ * <td>InetAddress.getLocalHost().getHostName()</td>
+ * <td>The key to use when partitioning all data topics sent from this instance</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>max.line.length</td>
+ * <td>64 * 1024</td>
+ * <td>The maximum length of a log line to send to Kafka</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>encode.timestamp</td>
+ * <td>true</td>
+ * <td>Whether or not to encode the timestamp in front of the log line</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>validate.utf8</td>
+ * <td>true</td>
+ * <td>If this is set to true, then all incoming log lines will be validated to ensure that they are correctly encoded in UTF-8. Invalid bytes will be replaced by the replacement character (U+FFFD)</td>
+ * </tr>
+ *
+ * </table>
  *
  */
 
@@ -58,8 +99,6 @@ public class Configuration extends ProducerConfiguration
 		encodeTimestamp = Boolean.parseBoolean(props.getProperty("encode.timestamp", Boolean.toString(encodeTimestamp)).trim());
 		validateUtf8 = Boolean.parseBoolean(props.getProperty("validate.utf8", Boolean.toString(validateUtf8)).trim());
 				
-		// So this topic is not configured to use the shared buffers, so require explicit buffer properties
-		
 		LOG.info("client.id = {}", clientId);
 		LOG.info("kafka.key = {}", kafkaKey);		
 		LOG.info("max.line.length = {}", maxLineLength);
