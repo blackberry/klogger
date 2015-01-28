@@ -27,8 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Calendar;
-import java.util.TimeZone;
 
 public class FileLogReader extends  LogReader
 {
@@ -38,7 +36,7 @@ public class FileLogReader extends  LogReader
 	private FileChannel channel;
 	private BasicFileAttributes bfa;	
 	private final ByteBuffer buffer;
-	private Calendar cal;
+
 	private long persistLinesCounter = 0;
 	private long persisMsTimestamp = 0;
 
@@ -119,8 +117,6 @@ public class FileLogReader extends  LogReader
 			}
 			
 			// Do we need to persist our position in the cache?
-			
-			LOG.info("Calendar time is: {}", cal.getTimeInMillis());
 			
 			if (System.currentTimeMillis()- persisMsTimestamp > source.getPositionPersistMs()
 				 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
