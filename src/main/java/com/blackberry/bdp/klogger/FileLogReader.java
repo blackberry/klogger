@@ -64,8 +64,7 @@ public class FileLogReader extends  LogReader
 		if (bfa.isRegularFile())
 		{
 			setFileChannelPosition(readPositionFromPersistCacheFile());
-			cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-			persisMsTimestamp = cal.getTimeInMillis();
+			persisMsTimestamp = System.currentTimeMillis();
 		}
 		else
 		{
@@ -116,16 +115,18 @@ public class FileLogReader extends  LogReader
 				LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
 				channel.position(0);
 				source.setPosition(0);
-				persistPosition();							
+				persistPosition();
 			}
 			
 			// Do we need to persist our position in the cache?
 			
 			LOG.info("Calendar time is: {}", cal.getTimeInMillis());
 			
-			if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
+			if (System.currentTimeMillis()- persisMsTimestamp > source.getPositionPersistMs()
 				 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
 			{
+				persistLinesCounter = 0;
+				persisMsTimestamp = System.currentTimeMillis();
 				persistPosition();
 			}
 			
