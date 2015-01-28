@@ -29,6 +29,10 @@ import org.slf4j.LoggerFactory;
  * 
  * <p>source.&lt;<i>topic</i>&gt.&lt;<i>property</i>&gt</p>
  * 
+ * <p>Note: this version has full support for both FIFO's and regular files, FIFO's will not persist positions within the cache.</p>
+ * <p>Files do not need to exist to be supported.  As long as the parent directory exists then that directory will be watched for the creation of the file.</p>
+ * <p>Files can be truncated or zeroed out and the position will move accordingly without interruption.</p>
+ * 
  * <h3>Valid properties are</h3>
  * 
  * <table border="1">
