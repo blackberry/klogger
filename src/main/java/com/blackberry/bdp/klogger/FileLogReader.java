@@ -73,6 +73,13 @@ public class FileLogReader extends  LogReader
 		}
 	}
 	
+	/**
+	 * Reads from the file source.  
+	 * Returns the number  of bytes read when there were bytes to have read
+	 * Return 0 (zero) if the FileChannel has reached the end of the stream
+	 * @return
+	 * @throws IOException
+	 */
 	@Override
 	protected int readSource() throws IOException
 	{
@@ -85,8 +92,12 @@ public class FileLogReader extends  LogReader
 			LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
 			channel.position(0);
 			source.setPosition(0);
-			persistPosition();
-			
+			persistPosition();			
+		}
+		
+		if (bytesRead == -1)
+		{
+			return 0;
 		}
 		
 		if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
