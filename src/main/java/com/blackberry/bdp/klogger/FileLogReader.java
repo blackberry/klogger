@@ -86,32 +86,8 @@ public class FileLogReader extends  LogReader
 		buffer.position(start);
 		
 		bytesRead = channel.read(buffer);
-
-		if (bfa.isRegularFile() && channel.size() < source.getPosition())
-		{
-			LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
-			channel.position(0);
-			source.setPosition(0);
-			persistPosition();			
-		}		
 		
-		if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
-			 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
-		{
-			persistPosition();
-		}
-		
-		if (bytesRead != -1)
-		{
-			LOG.trace("Position in buffer is now: {}", buffer.position());										
-			
-			if (bfa.isRegularFile())
-			{
-				LOG.trace("Position in file is now: {}", channel.position());
-				source.setPosition(channel.position());
-			}
-		}			
-		else if (bytesRead == -1)
+		if (bytesRead == -1)
 		{
 			try
 			{
@@ -123,8 +99,38 @@ public class FileLogReader extends  LogReader
 			}
 			
 			return 0;
-		}		
+		}
 		
+		LOG.trace("Position in buffer is now: {}", buffer.position());										
+
+		if (bfa.isRegularFile())
+		{
+			LOG.trace("Position in file is now: {}", channel.position());
+			
+			source.setPosition(channel.position());
+			
+			// Did our file get smaller?
+			
+			if (channel.size() < source.getPosition())
+			{
+				LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
+				channel.position(0);
+				source.setPosition(0);
+				persistPosition();							
+			}
+			
+			// Do we need to persist our position in the cache?
+			
+			LOG.info("Calendar time is", cal.getTimeInMillis());
+			
+			if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
+				 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
+			{
+				persistPosition();
+			}
+			
+		}		
+
 		return bytesRead;
 	}
 	
@@ -148,7 +154,7 @@ public class FileLogReader extends  LogReader
 			FileWriter writer = new FileWriter(persistFile, false);		
 			writer.write(String.valueOf(source.getPosition()));
 			writer.close();
-			LOG.error("Wrote position {} to file {} for source {}", source.getPosition(), persistFile, source);
+			LOG.info("Wrote position {} to file {} for source {}", source.getPosition(), persistFile, source);
 		}
 		catch(IOException ioe)
 		{
