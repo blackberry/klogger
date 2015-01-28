@@ -20,38 +20,60 @@ import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Configuring File Sources.
+ *
+ * The same properties object for Klogger is used to configure file sources.
+ * 
+ * <p><b>NOTE:</b> Every single one of these properties can be overwritten for a specific topic by using the following property patten:</p>
+ * 
+ * <p>source.&lt;<i>topic</i>&gt.&lt;<i>property</i>&gt</p>
+ * 
+ * Valid properties are:
+ * <br />
+ * <table border="1">
+ *
+ * <tr>
+ * <th>property</th>
+ * <th>default</th>
+ * <th>description</th>
+ * </tr>
+ *
+ * <tr>
+ * <td>file.position.persist.lines</td>
+ * <td>1000</td>
+ * <td>How many lines to read from before persisting the file position in the cache</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>file.position.persist.ms</td>
+ * <td>1000()</td>
+ * <td>How long to wait between calls  to cache the file position (milliseconds)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>file.stream.end.read.delay.ms</td>
+ * <td>500</td>
+ * <td>How long to wait after reaching the end of a file before another read is attempted (milliseconds)</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>file.positions.persist.cache.dir</td>
+ * <td>/opt/klogger/file_positions_cache</td>
+ * <td>The directory to persist the positions of files in</td>
+ * </tr>
+ *
+ * </table>
+ *
+ */
 public class FileSource extends Source
 {
 	private static final Logger LOG = LoggerFactory.getLogger(FileSource.class);
-	
-	/**
-	 * The file to read from 	  
-	 */
 	private File file;
-	
-	/**
-	 * How long should between persisting the file position in the cache
-	 */	
 	private long positionPersistMs = 1000;
-	
-	/**
-	 * How many lines to read from before persisting the file position in the cache
-	 */	
 	private long positionPersistLines = 1000;
-	
-	/**
-	 * The position in the file being read
-	 */
 	private long position;
-	
-	/**
-	 * The directory to persist the positions of files in
-	*/	
 	private String positonPersistCacheDir = "/opt/klogger/file_positions_cache";
-	
-	/**
-	 * How long to wait after reaching the end of a file before another read is attempted
-	 */
 	private long fileEndReadDelayMs = 500;
 	
 	public FileSource(String path, String topic)
