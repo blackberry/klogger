@@ -64,6 +64,9 @@ import org.slf4j.LoggerFactory;
  * </tr>
  *
  * </table>
+ * 
+ * <h3>Note: When file positions get persisted in the cache</h3>
+ * <p>Whenever file.position.persist.ms time elapses or file.position.persist.lines have been read, the timer/counters are reset.  Which ever event occurs first will dictate when positions are cached and then each are reset.</p>
  *
  */
 public class FileSource extends Source
