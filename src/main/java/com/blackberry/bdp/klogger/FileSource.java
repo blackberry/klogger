@@ -25,7 +25,7 @@ public class FileSource extends Source
 	private static final Logger LOG = LoggerFactory.getLogger(FileSource.class);
 	
 	/**
-	 * The file to read from 	 * 
+	 * The file to read from 	  
 	 */
 	private File file;
 	
