@@ -97,6 +97,15 @@ public class FileLogReader extends  LogReader
 		
 		if (bytesRead == -1)
 		{
+			try
+			{
+				Thread.sleep(source.getFileEndReadDelayMs());
+			}
+			catch (InterruptedException ie)
+			{
+				LOG.warn("{} Interrupted when waiting for end of file read delay", source);
+			}
+			
 			return 0;
 		}
 		

@@ -23,11 +23,36 @@ import org.slf4j.LoggerFactory;
 public class FileSource extends Source
 {
 	private static final Logger LOG = LoggerFactory.getLogger(FileSource.class);
+	
+	/**
+	 * The file to read from 	 * 
+	 */
 	private File file;
+	
+	/**
+	 * How long should between persisting the file position in the cache
+	 */	
 	private long positionPersistMs = 1000;
+	
+	/**
+	 * How many lines to read from before persisting the file position in the cache
+	 */	
 	private long positionPersistLines = 1000;
+	
+	/**
+	 * The position in the file being read
+	 */
 	private long position;
+	
+	/**
+	 * The directory to persist the positions of files in
+	*/	
 	private String positonPersistCacheDir = "/opt/klogger/file_positions_cache";
+	
+	/**
+	 * How long to wait after reaching the end of a file before another read is attempted
+	 */
+	private long fileEndReadDelayMs = 500;
 	
 	public FileSource(String path, String topic)
 	{
@@ -66,10 +91,18 @@ public class FileSource extends Source
 		
 		String propPositionPersistLines = this.getConf().getTopicAwarePropName("file.position.persist.lines");
 		String propPositionPersistMs = this.getConf().getTopicAwarePropName("file.position.persist.ms");
+		String propFileEndReadDelayMs = this.getConf().getTopicAwarePropName("file.stream.end.read.delay.ms");
+		String propPositonPersistCacheDir = "file.positions.persist.cache.dir";
 		
 		positionPersistLines = Long.parseLong(props.getProperty(propPositionPersistLines, Long.toString(positionPersistLines)));		
 		positionPersistMs = Long.parseLong(props.getProperty(propPositionPersistMs, Long.toString(positionPersistMs)));
-		positonPersistCacheDir = props.getProperty("file.positions.persist.cache.dir", positonPersistCacheDir);
+		positonPersistCacheDir = props.getProperty(propPositonPersistCacheDir, positonPersistCacheDir);
+		fileEndReadDelayMs = Long.parseLong(props.getProperty(propFileEndReadDelayMs, Long.toString(fileEndReadDelayMs)));
+		
+		LOG.info("{} configured {} = {}", this, propPositionPersistLines, positionPersistLines);
+		LOG.info("{} configured {} = {}", this, propPositionPersistMs, positionPersistMs);
+		LOG.info("{} configured {} = {}", this, propPositonPersistCacheDir, positonPersistCacheDir);
+		LOG.info("{} configured {} = {}", this, propFileEndReadDelayMs, fileEndReadDelayMs);
 	}
 	
 	public File getFile()
@@ -150,6 +183,22 @@ public class FileSource extends Source
 	public void setPositonPersistCacheDir(String positonPersistCacheDir)
 	{
 		this.positonPersistCacheDir = positonPersistCacheDir;
+	}
+
+	/**
+	 * @return the fileEndReadDelayMs
+	 */
+	public long getFileEndReadDelayMs()
+	{
+		return fileEndReadDelayMs;
+	}
+
+	/**
+	 * @param fileEndReadDelayMs the fileEndReadDelayMs to set
+	 */
+	public void setFileEndReadDelayMs(long fileEndReadDelayMs)
+	{
+		this.fileEndReadDelayMs = fileEndReadDelayMs;
 	}
 	
 }
