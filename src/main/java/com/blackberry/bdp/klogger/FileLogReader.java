@@ -121,7 +121,7 @@ public class FileLogReader extends  LogReader
 			
 			// Do we need to persist our position in the cache?
 			
-			LOG.info("Calendar time is", cal.getTimeInMillis());
+			LOG.info("Calendar time is: {}", cal.getTimeInMillis());
 			
 			if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
 				 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
