@@ -93,21 +93,7 @@ public class FileLogReader extends  LogReader
 			channel.position(0);
 			source.setPosition(0);
 			persistPosition();			
-		}
-		
-		if (bytesRead == -1)
-		{
-			try
-			{
-				Thread.sleep(source.getFileEndReadDelayMs());
-			}
-			catch (InterruptedException ie)
-			{
-				LOG.warn("{} Interrupted when waiting for end of file read delay", source);
-			}
-			
-			return 0;
-		}
+		}		
 		
 		if (cal.getTimeInMillis() - persisMsTimestamp > source.getPositionPersistMs()
 			 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
@@ -125,6 +111,19 @@ public class FileLogReader extends  LogReader
 				source.setPosition(channel.position());
 			}
 		}			
+		else if (bytesRead == -1)
+		{
+			try
+			{
+				Thread.sleep(source.getFileEndReadDelayMs());
+			}
+			catch (InterruptedException ie)
+			{
+				LOG.warn("{} Interrupted when waiting for end of file read delay", source);
+			}
+			
+			return 0;
+		}		
 		
 		return bytesRead;
 	}
