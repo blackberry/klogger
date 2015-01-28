@@ -21,16 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Configuring File Sources.
- *
- * The same properties object for Klogger is used to configure file sources.
+ * <h3>Configuring File Sources.</h3>
+ * 
+ * <p>The same properties object for Klogger is used to configure file sources.</p>
  * 
  * <p><b>NOTE:</b> Every single one of these properties can be overwritten for a specific topic by using the following property patten:</p>
  * 
  * <p>source.&lt;<i>topic</i>&gt.&lt;<i>property</i>&gt</p>
  * 
- * Valid properties are:
- * <br />
+ * <h3>Valid properties are</h3>
+ * 
  * <table border="1">
  *
  * <tr>
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * 
  * <tr>
  * <td>file.position.persist.ms</td>
- * <td>1000()</td>
+ * <td>1000</td>
  * <td>How long to wait between calls  to cache the file position (milliseconds)</td>
  * </tr>
  *
