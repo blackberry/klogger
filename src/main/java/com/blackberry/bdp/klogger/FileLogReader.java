@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -59,11 +60,10 @@ public class FileLogReader extends  LogReader
 		channel = in.getChannel();
 		Path p = Paths.get(source.getFile().toURI());
 		bfa = Files.readAttributes(p, BasicFileAttributes.class);
-
+		
 		if (bfa.isRegularFile())
 		{
-			LOG.info("Setting intitial positon of regular file {} to {}", source.getFile(), source.getPosition());
-			channel.position(source.getPosition());
+			setFileChannelPosition(readPositionFromPersistCacheFile());
 			cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			persisMsTimestamp = cal.getTimeInMillis();
 		}
@@ -134,22 +134,53 @@ public class FileLogReader extends  LogReader
 		LOG.info("Finished reading source {}", source);
 	}
 	
+	public File getPositionPersistCacheFile()
+	{
+		return new File(source.getPositonPersistCacheDir() + "/" + source.getFile().toString().replaceAll("/", "_"));
+	}		 
+	
 	private void persistPosition()
 	{
-		File persistFile = new File(source.getPositonPersistCacheDir() + "/" + source.getFile().toString().replaceAll("/", "_"));
+		File persistFile = getPositionPersistCacheFile();
 		
 		try 
 		{			
 			FileWriter writer = new FileWriter(persistFile, false);		
 			writer.write(String.valueOf(source.getPosition()));
 			writer.close();
-			LOG.error("Write position {} to file {} for source {}", source.getPosition(), persistFile, source);
+			LOG.error("Wrote position {} to file {} for source {}", source.getPosition(), persistFile, source);
 		}
 		catch(IOException ioe)
 		{
 			LOG.error("Unable to write position {} to file {} for source {}, error: ", source.getPosition(), persistFile, source, ioe);
 			
+		}		
+	}
+	
+	private void setFileChannelPosition(long position) throws IOException
+	{
+		LOG.info("Settting position to {} for {} ", position, source);
+		channel.position(position);
+	}
+	
+	/**
+	 * Reads the position for source from the cache directory
+	 * Returns the position when the file exists, otherwise 0 (zero)
+	 * @return
+	 * @throws IOException
+	 */
+	private long readPositionFromPersistCacheFile() throws IOException
+	{				
+		File persistFile = getPositionPersistCacheFile();
+		
+		if (!persistFile.exists())
+		{
+			return 0;
 		}
 		
+		byte[] encoded = Files.readAllBytes(persistFile.toPath());
+		Long position = Long.parseLong(new String(encoded, Charset.forName("UTF-8")));
+		LOG.info("Read position {} from file {} for source {}", position, persistFile, source);
+		return position;
 	}
 }
