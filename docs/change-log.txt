@@ -1,5 +1,16 @@
+Klogger changes in 0.7.7:
+
+- Reduces heap size to 2GB (from 5GB)' in config/klogger-env.sh
+- Finalizes support for file based sources
+- Updates documentation README.MD
+
+Klogger changes in 0.7.6
+
+- Fixes a critical bug that caused Klogger to try to continue reading on closed sockets indefinitely causing high CPU utilization.  This was introduced when the LogReader was abstracted from the ServerSocketLogReader to be shared with the FileLogReader.  
+
 Klogger changes in 0.7.5
 
+- Fixes a critical bug that prevented partition rotation
 - Defaults user 'klogger' in config/klogger-env.sh
 - Reduces heap size to 2GB (from 5GB)' in config/klogger-env.sh
 
