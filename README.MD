@@ -147,7 +147,7 @@ If a file being read is truncated or emptied then KLogger resets it's reader to 
 
 ## Created files:
 
- If a previously non-existent file is created KLogger will instantly start reading from it, setting the position found in the cache for regular files.
+If a previously non-existent file is created KLogger will instantly start reading from it, resetting any position found in the cache to zero.
 
 ## Additional Krackle Producer Properties
 
