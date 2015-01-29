@@ -31,7 +31,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class FileLogReader extends  LogReader
 {
 	private static final Logger LOG = LoggerFactory.getLogger(ServerSocketLogReader.class);
-	private final FileSource source;	
+	public final FileSource source;	
 	private FileInputStream in;
 	private FileChannel channel;
 	private BasicFileAttributes bfa;	
@@ -52,11 +52,11 @@ public class FileLogReader extends  LogReader
 	@Override
 	protected void prepareSource() throws FileNotFoundException, IOException
 	{
-		LOG.info("Instantiating InputStream for {}", source.getFile());
+		LOG.info("Instantiating InputStream for {}", getSource().getFile());
 
-		in = new FileInputStream(source.getFile());
+		in = new FileInputStream(getSource().getFile());
 		channel = in.getChannel();
-		Path p = Paths.get(source.getFile().toURI());
+		Path p = Paths.get(getSource().getFile().toURI());
 		bfa = Files.readAttributes(p, BasicFileAttributes.class);
 		
 		if (bfa.isRegularFile())
@@ -66,7 +66,7 @@ public class FileLogReader extends  LogReader
 		}
 		else
 		{
-			LOG.info("Not setting initial positon of non-regular file {}", source.getFile());
+			LOG.info("Not setting initial positon of non-regular file {}", getSource().getFile());
 		}
 	}
 	
@@ -88,11 +88,11 @@ public class FileLogReader extends  LogReader
 		{
 			try
 			{
-				Thread.sleep(source.getFileEndReadDelayMs());
+				Thread.sleep(getSource().getFileEndReadDelayMs());
 			}
 			catch (InterruptedException ie)
 			{
-				LOG.warn("{} Interrupted when waiting for end of file read delay", source);
+				LOG.warn("{} Interrupted when waiting for end of file read delay", getSource());
 			}
 			
 			return 0;
@@ -104,22 +104,22 @@ public class FileLogReader extends  LogReader
 		{
 			LOG.trace("Position in file is now: {}", channel.position());
 			
-			source.setPosition(channel.position());
+			getSource().setPosition(channel.position());
 			
 			// Did our file get smaller?
 			
-			if (channel.size() < source.getPosition())
+			if (channel.size() < getSource().getPosition())
 			{
-				LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
+				LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  getSource().getFile(), channel.size(), getSource().getPosition());
 				channel.position(0);
-				source.setPosition(channel.size());
+				getSource().setPosition(channel.size());
 				persistPosition();
 			}
 			
 			// Do we need to persist our position in the cache?
 			
-			if (System.currentTimeMillis()- persisMsTimestamp > source.getPositionPersistMs()
-				 || totalLinesRead - persistLinesCounter > source.getPositionPersistLines())
+			if (System.currentTimeMillis()- persisMsTimestamp > getSource().getPositionPersistMs()
+				 || totalLinesRead - persistLinesCounter > getSource().getPositionPersistLines())
 			{
 				persistLinesCounter = 0;
 				persisMsTimestamp = System.currentTimeMillis();
@@ -134,7 +134,7 @@ public class FileLogReader extends  LogReader
 	@Override 
 	protected void finished()
 	{
-		LOG.info("Finished reading source {}", source);
+		LOG.info("Finished reading source {}", getSource());
 		
 		if (bfa.isRegularFile())
 		{
@@ -144,30 +144,33 @@ public class FileLogReader extends  LogReader
 	
 	public File getPositionPersistCacheFile()
 	{
-		return new File(source.getPositonPersistCacheDir() + "/" + source.getFile().toString().replaceAll("/", "_"));
+		return new File(getSource().getPositonPersistCacheDir() + "/" + getSource().getFile().toString().replaceAll("/", "_"));
 	}		 
 	
-	private void persistPosition()
+	/**
+	 * Persists the file's position in the cache
+	 */
+	public void persistPosition()
 	{
 		File persistFile = getPositionPersistCacheFile();
 		
 		try 
 		{			
 			FileWriter writer = new FileWriter(persistFile, false);		
-			writer.write(String.valueOf(source.getPosition()));
+			writer.write(String.valueOf(getSource().getPosition()));
 			writer.close();
-			LOG.info("Wrote position {} to file {} for source {}", source.getPosition(), persistFile, source);
+			LOG.info("Wrote position {} to file {} for source {}", getSource().getPosition(), persistFile, getSource());
 		}
 		catch(IOException ioe)
 		{
-			LOG.error("Unable to write position {} to file {} for source {}, error: ", source.getPosition(), persistFile, source, ioe);
+			LOG.error("Unable to write position {} to file {} for source {}, error: ", getSource().getPosition(), persistFile, getSource(), ioe);
 			
 		}		
 	}
 	
 	private void setFileChannelPosition(long position) throws IOException
 	{
-		LOG.info("Settting position to {} for {} ", position, source);
+		LOG.info("Settting position to {} for {} ", position, getSource());
 		channel.position(position);
 	}
 	
@@ -188,7 +191,15 @@ public class FileLogReader extends  LogReader
 		
 		byte[] encoded = Files.readAllBytes(persistFile.toPath());
 		Long position = Long.parseLong(new String(encoded, Charset.forName("UTF-8")));
-		LOG.info("Read position {} from file {} for source {}", position, persistFile, source);
+		LOG.info("Read position {} from file {} for source {}", position, persistFile, getSource());
 		return position;
+	}
+
+	/**
+	 * @return the source
+	 */
+	public FileSource getSource()
+	{
+		return source;
 	}
 }
