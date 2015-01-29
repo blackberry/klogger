@@ -122,17 +122,43 @@ Property | Default | Description
 [source.&lt;_topic_&gt;.]file.stream.end.read.delay.ms|500|How long to wait after reaching the end of a file before another read is attempted (milliseconds)
 file.positions.persist.cache.dir|/opt/klogger/file_positions_cache|The directory to persist the positions of files in
 
-##Notes on How File Positions are Persisted in the Cache
+## Notes on How File Positions are Persisted in the Cache
 Whenever file.position.persist.ms time elapses or file.position.persist.lines have been read, the timer/counters are reset.  Which ever event occurs first will dictate when positions are cached and then each are reset.
 
+## Supported File Types for File Based Sources
 
-##Additional Krackle Producer Properties
+KLogger has full support for both regular files and FIFO files however only regular files support caching positions.  Disregard mention of cached position for non-regular file types through this documentation.
+
+## Handling File System Events for File Based Sources
+
+Files can be non-existent, moved, deleted/created, and truncated.  Here's how KLogger will handle these events accordingly:
+
+### Non-existent files: 
+
+If a file does not exist then KLogger will watch the parent directory for a creation event.  Once it's created it will prepare the source accordingly and start reading from the cached position (regular files only).  KLogger will just resume reading from FIFO's non-regular files without any consideration of the cached position in the event the file was previously of a different type.
+
+### Deleted/moved files: 
+
+When a file is deleted or moved KLogger stops reading from it and persists the position in the cache  and enters into the watching state for non-existent files.
+
+### Truncated Files
+
+If a file being read is truncated or emptied then KLogger resets it's reader to the size of the file, persists the new position and continues reading.
+
+### Created files:
+
+ If a previously non-existent file is created KLogger will instantly start reading from it, setting the position found in the cache for regular files.
+
+## Additional Krackle Producer Properties
+
 Please note that KLogger uses Krackle to produce messages to Kafka, so the Krackle properties are defined in the your KLogger configuration.  Please see the Krackle project for a list of it's available properties 
 
 ## Running
+
 After configuration simply start the service 'klogger start' (on Ubuntu/upstart) or 'service klogger start' (on RPM/SysV init).  The Debian package also creates a symbolic from /lib/init/upstart-job to /etc/init.d/klogger so existing 'service' configurations are respected.
 
 ## Monitoring
+
 Exposed via [Coda Hale's Metric's](https://github.com/dropwizard/metrics) are:
 
 Klogger:

@@ -112,7 +112,7 @@ public class FileLogReader extends  LogReader
 			{
 				LOG.warn("Truncated regular file {} detected, size is {} last position was {} -- resetting to positon zero",  source.getFile(), channel.size(), source.getPosition());
 				channel.position(0);
-				source.setPosition(0);
+				source.setPosition(channel.size());
 				persistPosition();
 			}
 			
@@ -135,6 +135,11 @@ public class FileLogReader extends  LogReader
 	protected void finished()
 	{
 		LOG.info("Finished reading source {}", source);
+		
+		if (bfa.isRegularFile())
+		{
+			persistPosition();
+		}			
 	}
 	
 	public File getPositionPersistCacheFile()
