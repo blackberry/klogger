@@ -244,18 +244,6 @@
 
 					<mappings>
 						
-						<!-- Directory Permissions -->
-						<mapping>
-							<directory>/var/run/klogger</directory>
-							<directory>/var/log/klogger</directory>
-							<directory>/opt/klogger/config</directory>
-							<directory>/opt/klogger/lib</directory>
-							<directory>/opt/klogger/file_positions_cache</directory>
-							<filemode>755</filemode>
-							<username>klogger</username>
-							<groupname>klogger</groupname>
-						</mapping>
-
 						<!-- Artifact JAR -->
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
@@ -273,7 +261,7 @@
 							<username>klogger</username>
 							<groupname>klogger</groupname>
 							<sources>
-								<source>
+								<source>`
 									<location>${project.basedir}/target/lib</location>
 									<includes>
 										<include>*</include>
@@ -314,6 +302,20 @@
 								</source>
 							</sources>
 						</mapping>
+						
+						<!-- Directory Permissions -->
+						<mapping>
+							<directory>/var/run/klogger</directory>
+							<directory>/var/log/klogger</directory>
+							<directory>/opt/klogger/config</directory>
+							<directory>/opt/klogger/lib</directory>
+							<directory>/opt/klogger/file_positions_cache</directory>
+							<filemode>755</filemode>
+							<username>klogger</username>
+							<groupname>klogger</groupname>
+						</mapping>
+
+
 
 					</mappings>
 
