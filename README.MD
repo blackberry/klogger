@@ -93,13 +93,14 @@ log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
 
 
 ##KLogger Configuration Properties
-| Property | Default | Description |
-|------|------|------|
-| client.id | InetAddress.getLocalHost().getHostName() | The client ID to send with requests to the broker |
-| kafka.key | InetAddress.getLocalHost().getHostName() | The key to use when partitioning all data topics sent from this instance |
-| max.line.length | 64 * 1024 | The maximum length of a log line to send to Kafka |
-| encode.timestamp | true | Whether or not to encode the timestamp in front of the log line |
-| validate.utf8 | true | If this is set to true, then all incoming log lines will be validated to |
+
+Property | Default | Description
+------ | ------ | ------
+client.id | InetAddress.getLocalHost().getHostName() | The client ID to send with requests to the broker
+kafka.key | InetAddress.getLocalHost().getHostName() | The key to use when partitioning all data topics sent from this instance
+max.line.length | 64 * 1024 | The maximum length of a log line to send to Kafka
+encode.timestamp | true | Whether or not to encode the timestamp in front of the log line
+validate.utf8 | true | If this is set to true, then all incoming log lines will be validated to
 
 ##TCP Port Based Source Properties
 The following additional properties apply to any configured TCP port source:
