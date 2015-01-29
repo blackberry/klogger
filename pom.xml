@@ -242,19 +242,25 @@
 						<require>shadow-utils</require>
 					</requires>
 
+					<defaultDirmode>755</defaultDirmode>
+					<defaultFilemode>644</defaultFilemode>
+					<defaultGroupname>klogger</defaultGroupname>
+					<defaultUsername>klogger</defaultUsername>
+					
+
 					<mappings>
 						
 						<!-- Artifact JAR -->
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
-							<filemode>644</filemode>
+							<!--<filemode>644</filemode>
 							<username>klogger</username>
-							<groupname>klogger</groupname>
+							<groupname>klogger</groupname>-->
 							<artifact></artifact>
 							<dependency/>
 						</mapping>
 						
-						<!-- Libraries -->
+						<!-- Libraries 
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
 							<filemode>644</filemode>
@@ -268,19 +274,18 @@
 									</includes>
 								</source>
 							</sources>
-						</mapping>
+						</mapping> -->
 
 						<!-- Config -->
 						<mapping>
 							<directory>/opt/klogger/config</directory>
-							<filemode>644</filemode>
+							<!--<filemode>644</filemode>
 							<username>klogger</username>
-							<groupname>klogger</groupname>
+							<groupname>klogger</groupname>-->
 							<sources>
 								<source>
 									<location>${project.basedir}/conf</location>
 									<includes>
-										<include>*.sample</include>
 										<include>*</include>
 									</includes>
 								</source>
