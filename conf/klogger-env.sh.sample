@@ -21,7 +21,7 @@ JAVA_OPTS="$JAVA_OPTS -server"
 #
 # Specify you desired heap size for the VM (corresponds to num.buffers in klogger.properties
 #
-JAVA_OPTS="$JAVA_OPTS -Xms2G -Xmx2G"
+JAVA_OPTS="$JAVA_OPTS -Xms150M -Xmx150M"
 
 JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC -XX:+UseConcMarkSweepGC"
 JAVA_OPTS="$JAVA_OPTS -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSConcurrentMTEnabled -XX:+CMSScavengeBeforeRemark"

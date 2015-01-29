@@ -45,7 +45,7 @@ kafka.rotate=true
 # Recommendations are: 4GB=1000, 6GB=2000, 8GB=4000, 16GB=11000
 # required: no
 # default: 2
-num.buffers=1000
+num.buffers=150
 
 # kafka.key: a string that is hashed to determine the partion to procuce for.
 # required: no
