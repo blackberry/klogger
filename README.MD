@@ -93,13 +93,39 @@ log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
 
 
 ##KLogger Configuration Properties
-|Property|Default|Description|
-|-|-|-|
-|client.id|InetAddress.getLocalHost().getHostName()| The client ID to send with requests to the broker|
-|kafka.key|InetAddress.getLocalHost().getHostName()| The key to use when partitioning all data topics sent from this instance|
-|max.line.length |64 * 1024|The maximum length of a log line to send to Kafka|
-|encode.timestamp|true|Whether or not to encode the timestamp in front of the log line|
-|validate.utf8|true|If this is set to true, then all incoming log lines will be validated to|
+
+<table border="1">
+<tr>
+<th>property</th>
+<th>default</th>
+<th>description</th>
+</tr>
+<tr>
+<td>client.id</td>
+<td>InetAddress.getLocalHost().getHostName()</td>
+<td>The client ID to send with requests to the broker</td>
+</tr>
+<tr>
+<td>kafka.key</td>
+<td>InetAddress.getLocalHost().getHostName()</td>
+<td>The key to use when partitioning all data topics sent from this instance</td>
+</tr>
+<tr>
+<td>max.line.length</td>
+<td>641024</td>
+<td>The maximum length of a log line to send to Kafka</td>
+</tr>
+<tr>
+<td>encode.timestamp</td>
+<td>true</td>
+<td>Whether or not to encode the timestamp in front of the log line</td>
+</tr>
+<tr>
+<td>validate.utf8</td>
+<td>true</td>
+<td>If this is set to true, then all incoming log lines will be validated to ensure that they are correctly encoded in UTF-8. Invalid bytes will be replaced by the replacement character (U+FFFD)</td>
+</tr>
+</table>
 
 ##TCP Port Based Source Properties
 The following additional properties apply to any configured TCP port source:
