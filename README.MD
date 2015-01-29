@@ -19,7 +19,7 @@ Performing a Maven install produces both a Debian package that currently install
 ## Configuring
 Below is an example configuration for running a KLogger instance that receives messages for two topics (topic1, topic2) on ports 2001, 2002 respectively.  It uses 200MB  worth of heap and will buffer up to 150MB GB of messages for both topics (in the event Kafka cannot ack) before dropping.
 
-/opt/klogger/config/klogger-env.sh (defines runtime configuration and JVM properties)
+Sample /opt/klogger/config/klogger-env.sh (defines runtime configuration and JVM properties)
 
 ```
 JAVA=`which java`
@@ -58,7 +58,7 @@ do
 done
 ```
 
-/opt/klogger/config/klogger.properties (defines Klogger configuration, topics, and ports)
+Sample /opt/klogger/config/klogger.properties (defines Klogger configuration, topics, and ports)
 
 ```
 metadata.broker.list=kafka1.site.dc1:9092,kafka2.site.dc1:9092,kafka3.site.dc1:9092
@@ -73,7 +73,7 @@ source.topic1.port=2001
 source.topic2.port=2002
 ```
 
-/opt/klogger/config/log4j.properties (logging)
+Sample /opt/klogger/config/log4j.properties (logging)
 
 ```
 klogger.logs.dir=/var/log/klogger
@@ -92,7 +92,7 @@ log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
 ```
 
 
-##KLogger Configuration Properties
+## KLogger Configuration Properties
 
 Property | Default | Description
 ------ | ------ | ------
@@ -102,20 +102,25 @@ max.line.length | 64 * 1024 | The maximum length of a log line to send to Kafka
 encode.timestamp | true | Whether or not to encode the timestamp in front of the log line
 validate.utf8 | true | If this is set to true, then all incoming log lines will be validated to
 
-##TCP Port Based Source Properties
-The following additional properties apply to any configured TCP port source:
-|Property|Default|Description|
-|-|-|-|
-|tcp.receive.buffer.bytes|1048576|The size of the TCP message receive buffer|
+## TCP Port Based Source Properties
 
-##File Based Source Properties
+The following additional properties apply to any configured TCP port source:
+
+Property | Default | Description
+------ | ------ | ------
+
+tcp.receive.buffer.bytes|1048576|The size of the TCP message receive buffer
+
+## File Based Source Properties
+
 The following additional properties apply to file based sources.  Note: that some of these can be defined as a globla default and optionally overwritten on a per topic basis via pre-prending a literal "source" followed by dot, then the topic name.
-|Property|Default|Description|
-|-|-|-|
-|[source.&lt;_topic_&gt;.]file.position.persist.lines|1000|How many lines to read from before persisting the file position in the cache|
-|[source.&lt;_topic_&gt;.]file.position.persist.ms|1000|How long to wait between calls  to cache the file position (milliseconds)|
-|[source.&lt;_topic_&gt;.]file.stream.end.read.delay.ms|500|How long to wait after reaching the end of a file before another read is attempted (milliseconds)|
-|file.positions.persist.cache.dir|/opt/klogger/file_positions_cache|The directory to persist the positions of files in|
+
+Property | Default | Description
+------ | ------ | ------
+[source.&lt;_topic_&gt;.]file.position.persist.lines|1000|How many lines to read from before persisting the file position in the cache
+[source.&lt;_topic_&gt;.]file.position.persist.ms|1000|How long to wait between calls  to cache the file position (milliseconds)
+[source.&lt;_topic_&gt;.]file.stream.end.read.delay.ms|500|How long to wait after reaching the end of a file before another read is attempted (milliseconds)
+file.positions.persist.cache.dir|/opt/klogger/file_positions_cache|The directory to persist the positions of files in
 
 ##Notes on How File Positions are Persisted in the Cache
 Whenever file.position.persist.ms time elapses or file.position.persist.lines have been read, the timer/counters are reset.  Which ever event occurs first will dictate when positions are cached and then each are reset.
