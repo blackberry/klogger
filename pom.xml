@@ -318,6 +318,9 @@
 						<mapping>
 							<directory>/var/log/klogger</directory>
 						</mapping>
+						<mapping>
+							<directory>/opt/klogger</directory>
+						</mapping>
 												
 					</mappings>
 
