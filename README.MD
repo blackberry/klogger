@@ -1,5 +1,5 @@
 # Klogger - A High Performance Producer Client for Kafka
-Klogger is a simple service that uses Krackle to receive messages and produce them to Kafka topics. 
+Klogger is a simple service that listen on TCP ports and local files and uses Krackle to produce those messages to Kafka topics. 
 
 ## Design Goals
 * Basic: Small code base with few dependencies and external requirements
@@ -14,12 +14,12 @@ Klogger is a simple service that uses Krackle to receive messages and produce th
 * [Dave Ariens](<mailto:dariens@blackberry.com>) (current maintainer)
 
 ## Building
-Performing a Maven install produces a Debian package that currently installs on Ubuntu based Linux distributions that support upstart-enabled services.
+Performing a Maven install produces both a Debian package that currently installs on Ubuntu based Linux distributions that support upstart-enabled services as well as an RPM that can be installed on distributions that support Red Hat packages.
 
 ## Configuring
-Below is an example configuration for running a KLogger instance that receives messages for two topics (topic1, topic2) on ports 2001, 2002 respectively.  It uses 4GB  worth of heap and will buffer up to a GB of messages for both topics (in the event Kafka cannot ack) before dropping.
+Below is an example configuration for running a KLogger instance that receives messages for two topics (topic1, topic2) on ports 2001, 2002 respectively.  It uses 200MB  worth of heap and will buffer up to 150MB GB of messages for both topics (in the event Kafka cannot ack) before dropping.
 
-/opt/klogger/config/klogger-env.sh (defines runtime configuration and JVM properties)
+Sample /opt/klogger/config/klogger-env.sh (defines runtime configuration and JVM properties)
 
 ```
 JAVA=`which java`
@@ -32,7 +32,7 @@ JMXPORT=9010
 LOG4JPROPERTIES=$CONFIGDIR/log4j.properties
 JAVA_OPTS=""
 JAVA_OPTS="$JAVA_OPTS -server"
-JAVA_OPTS="$JAVA_OPTS -Xms4G -Xmx4G"
+JAVA_OPTS="$JAVA_OPTS -Xms200M -Xmx200M"
 JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC -XX:+UseConcMarkSweepGC"
 JAVA_OPTS="$JAVA_OPTS -XX:+UseCMSInitiatingOccupancyOnly -XX:+CMSConcurrentMTEnabled -XX:+CMSScavengeBeforeRemark"
 JAVA_OPTS="$JAVA_OPTS -XX:CMSInitiatingOccupancyFraction=80"
@@ -58,7 +58,7 @@ do
 done
 ```
 
-/opt/klogger/config/klogger.properties (defines Klogger configuration, topics, and ports)
+Sample /opt/klogger/config/klogger.properties (defines Klogger configuration, topics, and ports)
 
 ```
 metadata.broker.list=kafka1.site.dc1:9092,kafka2.site.dc1:9092,kafka3.site.dc1:9092
@@ -66,17 +66,14 @@ compression.codec=snappy
 queue.enqueue.timeout.ms=0
 use.shared.buffers=true
 kafka.rotate=true
-num.buffers=1000
+num.buffers=150
 #This should be a unique character/string per klogger host.
 kafka.key="
-sources=topic1,topic2
 source.topic1.port=2001
-source.topic1=topic1
 source.topic2.port=2002
-source.topic2=topic2
 ```
 
-/opt/klogger/config/log4j.properties (logging)
+Sample /opt/klogger/config/log4j.properties (logging)
 
 ```
 klogger.logs.dir=/var/log/klogger
@@ -94,10 +91,74 @@ log4j.appender.kloggerAppender.layout.ConversionPattern=%5p [%t] %d{ISO8601} %m%
 log4j.appender.kloggerAppender.File=${klogger.logs.dir}/server.log
 ```
 
+
+## KLogger Configuration Properties
+
+Property | Default | Description
+------ | ------ | ------
+client.id | InetAddress.getLocalHost().getHostName() | The client ID to send with requests to the broker
+kafka.key | InetAddress.getLocalHost().getHostName() | The key to use when partitioning all data topics sent from this instance
+max.line.length | 64 * 1024 | The maximum length of a log line to send to Kafka
+encode.timestamp | true | Whether or not to encode the timestamp in front of the log line
+validate.utf8 | true | If this is set to true, then all incoming log lines will be validated to
+
+## TCP Port Based Source Properties
+
+The following additional properties apply to any configured TCP port source:
+
+Property | Default | Description
+------ | ------ | ------
+tcp.receive.buffer.bytes|1048576|The size of the TCP message receive buffer
+
+## File Based Source Properties
+
+The following additional properties apply to file based sources.  Note: that some of these can be defined as a globla default and optionally overwritten on a per topic basis via pre-prending a literal "source" followed by dot, then the topic name.
+
+Property | Default | Description
+------ | ------ | ------
+[source.&lt;_topic_&gt;.]file.position.persist.lines|1000|How many lines to read from before persisting the file position in the cache
+[source.&lt;_topic_&gt;.]file.position.persist.ms|1000|How long to wait between calls  to cache the file position (milliseconds)
+[source.&lt;_topic_&gt;.]file.stream.end.read.delay.ms|500|How long to wait after reaching the end of a file before another read is attempted (milliseconds)
+file.positions.persist.cache.dir|/opt/klogger/file_positions_cache|The directory to persist the positions of files in
+
+## Notes on How File Positions are Persisted in the Cache
+
+Whenever file.position.persist.ms time elapses or file.position.persist.lines have been read, the timer/counters are reset.  Which ever event occurs first will dictate when positions are cached and then each are reset.
+
+## Supported File Types for File Based Sources
+
+KLogger has full support for both regular files and FIFO files however only regular files support caching positions.  Disregard mention of cached position for non-regular file types through this documentation.
+
+## Handling File System Events for File Based Sources
+
+Files can be non-existent, moved, deleted/created, and truncated.  Here's how KLogger will handle these events accordingly:
+
+## Non-existent files: 
+
+If a file does not exist then KLogger will watch the parent directory for a creation event.  Once it's created it will prepare the source accordingly and start reading from the cached position (regular files only).  KLogger will just resume reading from FIFO's non-regular files without any consideration of the cached position in the event the file was previously of a different type.
+
+## Deleted/moved files: 
+
+When a file is deleted or moved KLogger stops reading from it and persists the position in the cache  and enters into the watching state for non-existent files.
+
+## Truncated Files
+
+If a file being read is truncated or emptied then KLogger resets it's reader to the size of the file, persists the new position and continues reading.
+
+## Created files:
+
+If a previously non-existent file is created KLogger will instantly start reading from it, resetting any position found in the cache to zero.
+
+## Additional Krackle Producer Properties
+
+Please note that KLogger uses Krackle to produce messages to Kafka, so the Krackle properties are defined in the your KLogger configuration.  Please see the Krackle project for a list of it's available properties 
+
 ## Running
-After configuration simply start the service 'klogger start'.  The package also creates a symbolic from /lib/init/upstart-job to /etc/init.d/klogger so existing 'service' configurations are respected.
+
+After configuration simply start the service 'klogger start' (on Ubuntu/upstart) or 'service klogger start' (on RPM/SysV init).  The Debian package also creates a symbolic from /lib/init/upstart-job to /etc/init.d/klogger so existing 'service' configurations are respected.
 
 ## Monitoring
+
 Exposed via [Coda Hale's Metric's](https://github.com/dropwizard/metrics) are:
 
 Klogger:

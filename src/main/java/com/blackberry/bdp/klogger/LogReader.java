@@ -136,14 +136,22 @@ public abstract class LogReader implements Runnable
 			{
 				bytesRead = readSource();				
 
-				if (bytesRead == -1)
+				if (bytesRead > 0)
+				{
+					LOG.trace("Read {} bytes", bytesRead);
+				}				
+				else if (bytesRead == 0)
+				{
+					// File's return 0 when they have reached the end of the FileChannel
+					continue;
+				}
+				else if (bytesRead == -1)
 				{
 					LOG.warn("Received -1 while reading from source, finishing up...");
 					finished = true;
 					continue;
 				}
 
-				LOG.trace("Read {} bytes", bytesRead);
 				
 				mBytesReceived.mark(bytesRead);
 				mBytesReceivedTotal.mark(bytesRead);

@@ -135,6 +135,11 @@ public class FileListener implements Runnable
 						logReader.setFinished(true);
 						
 						while(thread.isAlive()) { }
+						
+						logReader.getSource().setPosition(0);
+						logReader.persistPosition();
+						
+						LOG.info("Resetting the position of file {} to zero", logReader.getSource());
 					}
 				}
 

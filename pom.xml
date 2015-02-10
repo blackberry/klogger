@@ -6,8 +6,7 @@
 
 	<groupId>com.blackberry.bdp.klogger</groupId>
 	<artifactId>klogger</artifactId>
-	<version>0.7.6</version>
-
+	<version>0.7.8</version>
 	<name>klogger</name>
 	<url>http://www.blackberry.com</url>
 	
@@ -38,7 +37,7 @@
 		<dependency>
 			<groupId>com.blackberry.bdp.krackle</groupId>
 			<artifactId>krackle</artifactId>
-			<version>0.7.8</version>
+			<version>0.7.9</version>
 		</dependency>
 
 		<!-- Logging dependencies -->
@@ -145,6 +144,7 @@
 									<paths>
 										<path>/opt/klogger/config</path>
 										<path>/opt/klogger/lib</path>
+										<path>/opt/klogger/file_positions_cache</path>										
 										<path>/var/log/klogger</path>
 										<path>/var/run/klogger</path>
 									</paths>
@@ -241,45 +241,50 @@
 						<require>shadow-utils</require>
 					</requires>
 
-					<mappings>
+					<defaultDirmode>755</defaultDirmode>
+					<defaultFilemode>644</defaultFilemode>
+					<defaultGroupname>klogger</defaultGroupname>
+					<defaultUsername>klogger</defaultUsername>
+					
 
+					<mappings>
+						
 						<!-- Artifact JAR -->
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
-							<filemode>755</filemode>
+							<!--<filemode>644</filemode>
 							<username>klogger</username>
-							<groupname>klogger</groupname>
+							<groupname>klogger</groupname>-->
 							<artifact></artifact>
 							<dependency/>
 						</mapping>
 						
-						<!-- Libraries -->
+						<!-- Libraries 
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
-							<filemode>755</filemode>
+							<filemode>644</filemode>
 							<username>klogger</username>
 							<groupname>klogger</groupname>
 							<sources>
-								<source>
+								<source>`
 									<location>${project.basedir}/target/lib</location>
 									<includes>
 										<include>*</include>
 									</includes>
 								</source>
 							</sources>
-						</mapping>
+						</mapping> -->
 
 						<!-- Config -->
 						<mapping>
 							<directory>/opt/klogger/config</directory>
-							<filemode>755</filemode>
+							<!--<filemode>644</filemode>
 							<username>klogger</username>
-							<groupname>klogger</groupname>
+							<groupname>klogger</groupname>-->
 							<sources>
 								<source>
 									<location>${project.basedir}/conf</location>
 									<includes>
-										<include>*.sample</include>
 										<include>*</include>
 									</includes>
 								</source>
@@ -301,18 +306,21 @@
 								</source>
 							</sources>
 						</mapping>
-
+						
 						<!-- Directory Permissions -->
 						<mapping>
+							<directory>/opt/klogger/file_positions_cache</directory>
+						</mapping>						
+						<mapping>
 							<directory>/var/run/klogger</directory>
-							<directory>/var/log/klogger</directory>
-							<directory>/opt/klogger/config</directory>
-							<directory>/opt/klogger/lib</directory>
-							<filemode>755</filemode>
-							<username>klogger</username>
-							<groupname>klogger</groupname>
 						</mapping>
-
+						<mapping>
+							<directory>/var/log/klogger</directory>
+						</mapping>
+						<mapping>
+							<directory>/opt/klogger</directory>
+						</mapping>
+												
 					</mappings>
 
 					<!-- Run the pre-install script (note: this is the deb package's preinst) -->

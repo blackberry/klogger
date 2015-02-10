@@ -20,6 +20,59 @@ import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <h3>Configuring File Sources.</h3>
+ * 
+ * <p>The same properties object for Klogger is used to configure file sources.</p>
+ * 
+ * <p><b>NOTE:</b> Every single one of these properties can be overwritten for a specific topic by using the following property patten:</p>
+ * 
+ * <p>source.&lt;<i>topic</i>&gt.&lt;<i>property</i>&gt</p>
+ * 
+ * <p>Note: this version has full support for both FIFO's and regular files, FIFO's will not persist positions within the cache.</p>
+ * <p>Files do not need to exist to be supported.  As long as the parent directory exists then that directory will be watched for the creation of the file.</p>
+ * <p>Files can be truncated or zeroed out and the position will move accordingly without interruption.</p>
+ * 
+ * <h3>Valid properties are</h3>
+ * 
+ * <table border="1">
+ *
+ * <tr>
+ * <th>property</th>
+ * <th>default</th>
+ * <th>description</th>
+ * </tr>
+ *
+ * <tr>
+ * <td>file.position.persist.lines</td>
+ * <td>1000</td>
+ * <td>How many lines to read from before persisting the file position in the cache</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>file.position.persist.ms</td>
+ * <td>1000</td>
+ * <td>How long to wait between calls  to cache the file position (milliseconds)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>file.stream.end.read.delay.ms</td>
+ * <td>500</td>
+ * <td>How long to wait after reaching the end of a file before another read is attempted (milliseconds)</td>
+ * </tr>
+ * 
+ * <tr>
+ * <td>file.positions.persist.cache.dir</td>
+ * <td>/opt/klogger/file_positions_cache</td>
+ * <td>The directory to persist the positions of files in</td>
+ * </tr>
+ *
+ * </table>
+ * 
+ * <h3>Note: When file positions get persisted in the cache</h3>
+ * <p>Whenever file.position.persist.ms time elapses or file.position.persist.lines have been read, the timer/counters are reset.  Which ever event occurs first will dictate when positions are cached and then each are reset.</p>
+ *
+ */
 public class FileSource extends Source
 {
 	private static final Logger LOG = LoggerFactory.getLogger(FileSource.class);
@@ -28,6 +81,7 @@ public class FileSource extends Source
 	private long positionPersistLines = 1000;
 	private long position;
 	private String positonPersistCacheDir = "/opt/klogger/file_positions_cache";
+	private long fileEndReadDelayMs = 500;
 	
 	public FileSource(String path, String topic)
 	{
@@ -66,10 +120,18 @@ public class FileSource extends Source
 		
 		String propPositionPersistLines = this.getConf().getTopicAwarePropName("file.position.persist.lines");
 		String propPositionPersistMs = this.getConf().getTopicAwarePropName("file.position.persist.ms");
+		String propFileEndReadDelayMs = this.getConf().getTopicAwarePropName("file.stream.end.read.delay.ms");
+		String propPositonPersistCacheDir = "file.positions.persist.cache.dir";
 		
 		positionPersistLines = Long.parseLong(props.getProperty(propPositionPersistLines, Long.toString(positionPersistLines)));		
 		positionPersistMs = Long.parseLong(props.getProperty(propPositionPersistMs, Long.toString(positionPersistMs)));
-		positonPersistCacheDir = props.getProperty("file.positions.persist.cache.dir", positonPersistCacheDir);
+		positonPersistCacheDir = props.getProperty(propPositonPersistCacheDir, positonPersistCacheDir);
+		fileEndReadDelayMs = Long.parseLong(props.getProperty(propFileEndReadDelayMs, Long.toString(fileEndReadDelayMs)));
+		
+		LOG.info("{} configured {} = {}", this, propPositionPersistLines, positionPersistLines);
+		LOG.info("{} configured {} = {}", this, propPositionPersistMs, positionPersistMs);
+		LOG.info("{} configured {} = {}", this, propPositonPersistCacheDir, positonPersistCacheDir);
+		LOG.info("{} configured {} = {}", this, propFileEndReadDelayMs, fileEndReadDelayMs);
 	}
 	
 	public File getFile()
@@ -150,6 +212,22 @@ public class FileSource extends Source
 	public void setPositonPersistCacheDir(String positonPersistCacheDir)
 	{
 		this.positonPersistCacheDir = positonPersistCacheDir;
+	}
+
+	/**
+	 * @return the fileEndReadDelayMs
+	 */
+	public long getFileEndReadDelayMs()
+	{
+		return fileEndReadDelayMs;
+	}
+
+	/**
+	 * @param fileEndReadDelayMs the fileEndReadDelayMs to set
+	 */
+	public void setFileEndReadDelayMs(long fileEndReadDelayMs)
+	{
+		this.fileEndReadDelayMs = fileEndReadDelayMs;
 	}
 	
 }
