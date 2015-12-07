@@ -297,7 +297,7 @@
 
 						<!-- Executables -->
 						<mapping>
-							<directory>/opt/klogger/bin</directory>
+							<directory>/etc/rc.d/init.d</directory>
 							<filemode>755</filemode>
 							<username>klogger</username>
 							<groupname>klogger</groupname>
