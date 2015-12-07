@@ -1,3 +1,27 @@
+Klogger changes in 0.8.2:
+
+- Bumps Krackle dependency to 0.8.2
+- Reformats all source files
+
+Klogger changes in 0.8.1:
+
+- Bumps Krackle dependency to 0.8.1
+
+Klogger changes in 0.8.0:
+
+- Supports bdp-common 0.0.6 which provides all logging and monitoring deps
+- Instruments log4j2 with io.dropwizard.metrics
+- Depends on krackle-0.8.0 (supports updating partitions when updating metadata upon after message send failure)
+- Adds a new configuration option (int) retry.backoff.exponent (default: 1)
+
+Klogger changes in 0.7.10:
+
+- Adds a new global configuration option (unique.producers=true|false) to force non-shared producers
+
+Klogger changes in 0.7.9:
+
+- Updates Krackle dependency to 0.7.10
+
 Klogger changes in 0.7.7:
 
 - Reduces heap size to 2GB (from 5GB)' in config/klogger-env.sh
@@ -6,7 +30,7 @@ Klogger changes in 0.7.7:
 
 Klogger changes in 0.7.6
 
-- Fixes a critical bug that caused Klogger to try to continue reading on closed sockets indefinitely causing high CPU utilization.  This was introduced when the LogReader was abstracted from the ServerSocketLogReader to be shared with the FileLogReader.  
+- Fixes a critical bug that caused Klogger to try to continue reading on closed sockets indefinitely causing high CPU utilization.  This was introduced when the LogReader was abstracted from the ServerSocketLogReader to be shared with the FileLogReader.
 
 Klogger changes in 0.7.5
 
@@ -34,8 +58,8 @@ Klogger changes in 0.7.1:
 - Ownership is now set recursively for required paths during deb package's preinst script
 - Upstart script now recognizes new package name space (com.blackberry.bdp.klogger)
 - Updates to the POM file's jdeb block to not use the artifactId in paths (since branches would break the package)
-- Finished refactoring out sources to be fully abstracted.  
-- New  FileLogReader and the ServerSocketLogReader.  
+- Finished refactoring out sources to be fully abstracted.
+- New  FileLogReader and the ServerSocketLogReader.
 - All the rather complex logic for parsing lines, encoding, and producing to Kafka topics are encapsulated in the abstract LogReader.
 - With re-written Krackle producer configuration every property can be overwritten and made source/topic specific.
 - To add a new source you just need to extend the abstract Source class and implement the method that returns a listener thread.  That listener thread can either extend the log reader directly or be the thing that waits to instantiate a log reader (like what we have to do for log files that might not exist yet).  Then, the log reader just has to implement the abstract prepareSource(), readSource(), and finished() methods.  Should be really easy if we ever want to add another source type moving forward.

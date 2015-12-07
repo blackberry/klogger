@@ -6,10 +6,10 @@
 
 	<groupId>com.blackberry.bdp.klogger</groupId>
 	<artifactId>klogger</artifactId>
-	<version>0.7.8.3</version>
-	<name>klogger-0.7.8-HF3</name>
+	<version>0.8.2-SNAPSHOT</version>
+	<name>klogger-0.8.2-SNAPSHOT</name>
 	<url>http://www.blackberry.com</url>
-	
+
 	<scm>
 		<connection>scm:git:git@gitlab.rim.net:ipgbd-software/klogger.git</connection>
 		<developerConnection>scm:git:git@gitlab.rim.net:ipgbd-software/klogger.git</developerConnection>
@@ -27,9 +27,9 @@
 			<version>18.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.blackberry.bdp.common.utils</groupId>
-			<artifactId>common-utils</artifactId>
-			<version>0.0.4</version>
+			<groupId>com.blackberry.bdp.common</groupId>
+			<artifactId>bdp-common</artifactId>
+			<version>0.5.2</version>
 		</dependency>
 
 
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>com.blackberry.bdp.krackle</groupId>
 			<artifactId>krackle</artifactId>
-			<version>0.7.9.3</version>
+			<version>0.8.2</version>
 		</dependency>
 
 		<!-- Logging dependencies -->
@@ -76,10 +76,10 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
 	</dependencies>
 
-	<build>		
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -120,7 +120,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<!-- Build a DEB package -->
 			<plugin>
 				<artifactId>jdeb</artifactId>
@@ -137,14 +137,14 @@
 							<controlDir>src/deb/control</controlDir>
 							<timestamped>true</timestamped>
 							<dataSet>
-								
+
 								<!-- Create required directories -->
 								<data>
 									<type>template</type>
 									<paths>
 										<path>/opt/klogger/config</path>
 										<path>/opt/klogger/lib</path>
-										<path>/opt/klogger/file_positions_cache</path>										
+										<path>/opt/klogger/file_positions_cache</path>
 										<path>/var/log/klogger</path>
 										<path>/var/run/klogger</path>
 									</paths>
@@ -168,7 +168,7 @@
 										<group>root</group>
 									</mapper>
 								</data>
-								
+
 								<!-- Copy all required libraries -->
 								<data>
 									<type>directory</type>
@@ -182,7 +182,7 @@
 										<group>root</group>
 									</mapper>
 								</data>
-								
+
 								<!-- Copy the config sample(s) -->
 								<data>
 									<type>files</type>
@@ -193,34 +193,34 @@
 									</paths>
 									<dst>/opt/klogger/config</dst>
 								</data>
-								
+
 								<!-- Copy the init upstart script -->
 								<data>
 									<src>${project.basedir}/init/klogger.conf</src>
 									<dst>/etc/init/klogger.conf</dst>
 									<type>file</type>
 								</data>
-								
+
 								<!-- Link the upstart file to -->
 								<data>
 									<type>link</type>
 									<linkName>/etc/init.d/klogger</linkName>
 									<linkTarget>/lib/init/upstart-job</linkTarget>
 									<symlink>true</symlink>
-								</data>								
-								
+								</data>
+
 							</dataSet>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<!-- Build an RPM -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>rpm-maven-plugin</artifactId>
 				<version>2.1.1</version>
-			
+
 				<!-- When to build -->
 				<executions>
 					<execution>
@@ -230,7 +230,7 @@
 						</goals>
 					</execution>
 				</executions>
-				
+
 				<configuration>
 					<defineStatements>
 						<defineStatement>_tmppath /tmp</defineStatement>
@@ -245,10 +245,10 @@
 					<defaultFilemode>644</defaultFilemode>
 					<defaultGroupname>klogger</defaultGroupname>
 					<defaultUsername>klogger</defaultUsername>
-					
+
 
 					<mappings>
-						
+
 						<!-- Artifact JAR -->
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
@@ -258,8 +258,8 @@
 							<artifact></artifact>
 							<dependency/>
 						</mapping>
-						
-						<!-- Libraries 
+
+						<!-- Libraries
 						<mapping>
 							<directory>/opt/klogger/lib</directory>
 							<filemode>644</filemode>
@@ -306,11 +306,11 @@
 								</source>
 							</sources>
 						</mapping>
-						
+
 						<!-- Directory Permissions -->
 						<mapping>
 							<directory>/opt/klogger/file_positions_cache</directory>
-						</mapping>						
+						</mapping>
 						<mapping>
 							<directory>/var/run/klogger</directory>
 						</mapping>
@@ -320,17 +320,17 @@
 						<mapping>
 							<directory>/opt/klogger</directory>
 						</mapping>
-												
+
 					</mappings>
 
 					<!-- Run the pre-install script (note: this is the deb package's preinst) -->
 					<preinstallScriptlet>
-						<scriptFile>src/deb/control/preinst</scriptFile>					
+						<scriptFile>src/deb/control/preinst</scriptFile>
 					</preinstallScriptlet>
 
 				</configuration>
-			</plugin>	
-			
+			</plugin>
+
 			<!-- Generate a build number -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -345,11 +345,11 @@
 					</execution>
 				</executions>
 				<configuration>
-					<doCheck>true</doCheck>
-					<doUpdate>false</doUpdate>							
-				</configuration>					
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+				</configuration>
 			</plugin>
-			
+
 			<!-- embed the build number in JAR -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -367,12 +367,12 @@
 					</archive>
 				</configuration>
 			</plugin>
-			
+
 		</plugins>
 
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
+				<!--This plugin's configuration is used to store Eclipse m2e settings
 				only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
