@@ -292,6 +292,7 @@
 							<filemode>755</filemode>
 							<username>klogger</username>
 							<groupname>klogger</groupname>
+							<directoryIncluded>false</directoryIncluded>
 							<sources>
 								<source>
 									<location>${project.basedir}/bin</location>
