@@ -6,7 +6,7 @@
 
 	<groupId>com.blackberry.bdp.klogger</groupId>
 	<artifactId>klogger</artifactId>
-	<version>0.8.2</version>
+	<version>0.8.3-SNAPSHOT</version>
 	<name>klogger-0.8.2</name>
 	<url>http://www.blackberry.com</url>
 
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>com.blackberry.bdp.krackle</groupId>
 			<artifactId>krackle</artifactId>
-			<version>0.8.2</version>
+			<version>0.8.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Logging dependencies -->
