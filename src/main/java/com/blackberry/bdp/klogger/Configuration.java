@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.blackberry.bdp.krackle.producer.ProducerConfiguration;
+import javax.security.auth.login.LoginContext;
 
 /**
  * Class for configuring KLogger.
@@ -107,6 +108,14 @@ public class Configuration extends ProducerConfiguration {
 		LOG.info("max.line.length = {}", maxLineLength);
 		LOG.info("encode.timestamp = {}", encodeTimestamp);
 		LOG.info("validate.utf8 = {}", validateUtf8);
+
+		if (getJaasLoginContextName() != null) {
+			LoginContext lc = new LoginContext(getJaasLoginContextName());
+			lc.login();
+			configureSecurity(lc);
+		} else {
+			configureSecurity();
+		}
 	}
 
 	/**
