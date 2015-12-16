@@ -112,8 +112,11 @@ public class Configuration extends ProducerConfiguration {
 		if (getJaasLoginContextName() != null) {
 			LoginContext lc = new LoginContext(getJaasLoginContextName());
 			lc.login();
+			LOG.info("logged in via {}", getJaasLoginContextName());
+			LOG.debug("logged in subject: {}", lc.getSubject());
 			configureSecurity(lc);
 		} else {
+			LOG.info("not logged in");
 			configureSecurity();
 		}
 	}
