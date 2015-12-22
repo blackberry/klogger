@@ -108,17 +108,6 @@ public class Configuration extends ProducerConfiguration {
 		LOG.info("max.line.length = {}", maxLineLength);
 		LOG.info("encode.timestamp = {}", encodeTimestamp);
 		LOG.info("validate.utf8 = {}", validateUtf8);
-
-		if (getJaasLoginContextName() != null) {
-			LoginContext lc = new LoginContext(getJaasLoginContextName());
-			lc.login();
-			LOG.info("logged in via {}", getJaasLoginContextName());
-			LOG.debug("logged in subject: {}", lc.getSubject());
-			configureSecurity(lc);
-		} else {
-			LOG.info("not logged in");
-			configureSecurity();
-		}
 	}
 
 	/**
