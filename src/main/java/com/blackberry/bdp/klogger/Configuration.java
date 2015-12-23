@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.blackberry.bdp.krackle.producer.ProducerConfiguration;
+import javax.security.auth.login.LoginContext;
 
 /**
  * Class for configuring KLogger.
