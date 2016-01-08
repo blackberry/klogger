@@ -1,3 +1,9 @@
+Klogger changes in 0.9.0:
+
+- KLOG-4: Add Krackle 0.9.0 Dependency
+- KLOG-6 Klogger-env.sh requires Bash
+- KLOG-10: Remove BASH specific syntax and support basic shell syntax
+
 Klogger changes in 0.8.2:
 
 - Bumps Krackle dependency to 0.8.2
