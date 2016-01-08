@@ -15,11 +15,19 @@
  */
 package com.blackberry.bdp.klogger;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PortSource extends Source {
 
+	private static final Logger LOG = LoggerFactory.getLogger(PortSource.class);
+
 	private int port;
+	private InetAddress bindAddr;
+	private int listenBacklog;
 	private int tcpReceiveBufferBytes = 1048576;
 
 	public PortSource(String port, String topic) {
@@ -35,8 +43,31 @@ public class PortSource extends Source {
 	@Override
 	public void configure(Properties props) throws ConfigurationException, Exception {
 		super.configure(props);
-
-		tcpReceiveBufferBytes = Integer.parseInt(props.getProperty("tcp.receive.buffer.bytes", Integer.toString(tcpReceiveBufferBytes)));
+		try {
+			tcpReceiveBufferBytes = Integer.parseInt(props.getProperty(
+				 "tcp.receive.buffer.bytes", Integer.toString(tcpReceiveBufferBytes)));
+			String bindProperty = String.format("server.listen.address.%s", this.getTopic());
+			if (props.containsKey(bindProperty)) {
+				bindAddr = InetAddress.getByName(props.getProperty(bindProperty).trim());
+			} else {
+				bindAddr = InetAddress.getByName(props.getProperty(
+					 "server.listen.address", "127.0.0.1").trim());
+			}
+			String backlogProperty = String.format("server.listen.backlog.%s", this.getTopic());
+			if (props.containsKey(backlogProperty)) {
+				listenBacklog = Integer.parseInt(props.getProperty(backlogProperty).trim());
+			} else {
+				listenBacklog = Integer.parseInt(props.getProperty(
+					 "server.listen.backlog", "50").trim());
+			}
+			LOG.info("Configured source port for {}:{} (with backlog of {}",
+				 bindAddr.getHostAddress(),
+				 port,
+				 listenBacklog);
+		} catch (NumberFormatException | UnknownHostException e) {
+			LOG.error("Failed to configure source port for topic {}", e);
+			throw new ConfigurationException("failed to configure source port", e);
+		}
 	}
 
 	public int getPort() {
@@ -64,6 +95,20 @@ public class PortSource extends Source {
 	 */
 	public void setTcpReceiveBufferBytes(int tcpReceiveBufferBytes) {
 		this.tcpReceiveBufferBytes = tcpReceiveBufferBytes;
+	}
+
+	/**
+	 * @return the bindAddr
+	 */
+	public InetAddress getBindAddr() {
+		return bindAddr;
+	}
+
+	/**
+	 * @return the listenBacklog
+	 */
+	public int getListenBacklog() {
+		return listenBacklog;
 	}
 
 }

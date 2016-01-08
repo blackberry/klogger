@@ -34,21 +34,24 @@ public class TcpListener implements Runnable {
 	@Override
 	public void run() {
 		try {
-			ServerSocket ss = new ServerSocket(source.getPort());
+			ServerSocket ss = new ServerSocket(
+				 source.getPort(),
+				 source.getListenBacklog(),
+				 source.getBindAddr());
 			ss.setReceiveBufferSize(source.getTcpReceiveBufferBytes());
-			LOG.info("Listening on port {}", source.getPort());
-
+			LOG.info("Listening on {}:{} (with listen backlog: {})",
+				 source.getBindAddr().getHostAddress(),
+				 source.getPort(),
+				 source.getListenBacklog());
 			while (true) {
 				Socket s = ss.accept();
 				ServerSocketLogReader r = new ServerSocketLogReader(source, s);
 				Thread t = new Thread(r);
 				t.start();
 			}
-		} catch (Throwable t) {
-			t.printStackTrace();
+		} catch (Exception e) {
+			LOG.error("An error occured listening on our socket: ", e);
 			System.exit(1);
 		}
-
 	}
-
 }
