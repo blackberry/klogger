@@ -35,14 +35,8 @@ JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=$JMXPORT"
 JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:$LOG4JPROPERTIES"
+JAVA_OPTS="$JAVA_OPTS -Djava.security.auth.login.config=$CONFIGDIR/jaas.conf"
+JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
+JAVA_OPTS="$JAVA_OPTS -Djava.security.krb5.conf=/etc/krb5.conf"
 
-CLASSPATH=$CONFIGDIR
-for file in `find $BASEDIR -name "*.jar"`
-do
-  if [[ "x$CLASSPATH" == "x" ]]
-  then
-    CLASSPATH=$file
-  else
-    CLASSPATH="$CLASSPATH:$file"
-  fi
-done
+CLASSPATH="$CONFIGDIR:$BASEDIR/lib/*"

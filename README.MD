@@ -46,16 +46,7 @@ JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=$JMXPORT"
 JAVA_OPTS="$JAVA_OPTS -Dlog4j.configuration=file:$LOG4JPROPERTIES"
 
-CLASSPATH=$CONFIGDIR
-for file in `find $BASEDIR -name "*.jar"`
-do
-	if [[ "x$CLASSPATH" == "x" ]]
-	then
-		CLASSPATH=$file
-	else
-		CLASSPATH="$CLASSPATH:$file"
-	fi
-done
+CLASSPATH="$CONFIGDIR:$BASEDIR/lib/*"
 ```
 
 Sample /opt/klogger/config/klogger.properties (defines Klogger configuration, topics, and ports)

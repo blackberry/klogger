@@ -2,7 +2,7 @@
 
 # Remove any libraries from previous versions
 
-if [[ "x$klogger_uid" == "x" ]]
+if [ "x$klogger_uid" == "x" ]
 then
 	getent group klogger >/dev/null || groupadd -r klogger 
 	getent passwd klogger >/dev/null || useradd -r -g klogger -m -s /bin/bash -c "User for klogger." klogger
@@ -11,23 +11,23 @@ else
 	getent passwd klogger >/dev/null || useradd -u $klogger_uid -r -g klogger -m -s /bin/bash -c "User for klogger." klogger
 fi
 
-if [[ -e "/opt/klogger/lib" ]]
+if [ -e "/opt/klogger/lib" ]
 then
 	rm /opt/klogger/lib/*
 	chown -R klogger.klogger /opt/klogger/lib
 fi
 
-if [[ -e "/var/run/klogger" ]]
+if [ -e "/var/run/klogger" ]
 then
 	chown -R klogger.klogger /var/run/klogger
 fi 
 
-if [[ -e "/var/log/klogger" ]]
+if [ -e "/var/log/klogger" ]
 then
 	chown -R klogger.klogger /var/log/klogger
 fi 
 
-if [[ -e "/opt/klogger/config" ]]
+if [ -e "/opt/klogger/config" ]
 then
 	chown -R klogger.klogger /opt/klogger/config
 fi
