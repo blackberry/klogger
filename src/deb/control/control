@@ -5,3 +5,4 @@ Priority: optional
 Architecture: all
 Maintainer: Dave Ariens <dariens@blackberry.com>
 Description: Daemon that reads TCP server socket or local file listener sources and forwards messages to specific Kafka topics
+Depends:

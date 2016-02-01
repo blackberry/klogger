@@ -8,6 +8,7 @@ Klogger changes in 0.9.0:
     * global option: server.listen.backlog (default: 50)
     * topic specific configurations server.listen.address.<topic>
     * topic specific configurations server.listen.backlog.<topic>
+- KLOG-12: Remove all dependencies from debian package
 
 Klogger changes in 0.8.2:
 
