@@ -68,6 +68,10 @@ public class KLogger {
 				props.load(propsIn);
 			}
 
+			// Check if we're using a custom tmp directory for Snappy
+			String snappyTempDir = props.getProperty("klogger.temp.dir", "/opt/klogger/tmp").trim();
+			System.setProperty("org.xerial.snappy.tempdir", snappyTempDir);
+
 			ArrayList<Source> sources = Configuration.getSources(props);
 
 			if (sources.isEmpty()) {

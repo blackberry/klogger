@@ -148,6 +148,7 @@
 									<paths>
 										<path>/opt/klogger/config</path>
 										<path>/opt/klogger/lib</path>
+										<path>/opt/klogger/tmp</path>
 										<path>/opt/klogger/file_positions_cache</path>
 										<path>/var/log/klogger</path>
 										<path>/var/run/klogger</path>
@@ -306,6 +307,9 @@
 						<!-- Directory Permissions -->
 						<mapping>
 							<directory>/opt/klogger/file_positions_cache</directory>
+						</mapping>
+						<mapping>
+							<directory>/opt/klogger/tmp</directory>
 						</mapping>
 						<mapping>
 							<directory>/var/run/klogger</directory>
