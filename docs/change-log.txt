@@ -1,6 +1,8 @@
 Klogger changes in 0.9.0:
 
+- KLOG-2: Klogger RPM doesn't install on CentOS 7
 - KLOG-4: Add Krackle 0.9.0 Dependency
+- KLOG-5: Simplify JAAS Configuration
 - KLOG-6 Klogger-env.sh requires Bash
 - KLOG-10: Remove BASH specific syntax and support basic shell syntax
 - KLOG-11: Enhance server socket configuration options
@@ -9,6 +11,7 @@ Klogger changes in 0.9.0:
     * topic specific configurations server.listen.address.<topic>
     * topic specific configurations server.listen.backlog.<topic>
 - KLOG-12: Remove all dependencies from debian package
+- KLOG-13: Create Klogger temp dir on package install and set snappy temp dir to use it
 
 Klogger changes in 0.8.2:
 
