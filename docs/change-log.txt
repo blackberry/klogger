@@ -1,3 +1,7 @@
+Klogger changes in 0.9.1
+
+- KLOG-15: Release 0.9.1 and include Krackle 0.9.1 dependency
+
 Klogger changes in 0.9.0:
 
 - KLOG-2: Klogger RPM doesn't install on CentOS 7
