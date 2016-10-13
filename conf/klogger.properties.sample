@@ -6,7 +6,7 @@
 
 # metadata.broker.list: a comma separated list of host:port entries.
 # combinations of Kafka brokers you wish to procuce to, example:
-# metadata.broker.list=r3k1.kafka.log82.bblabs:9092,r3k2.kafka.log82.bblabs:9092,r3k3.kafka.log82.bblabs:9092
+# metadata.broker.list=r3k1.company.com:9092,r3k2.company.com:9092,r3k3.company.com:9092
 # required: yes
 #
 metadata.broker.list=
